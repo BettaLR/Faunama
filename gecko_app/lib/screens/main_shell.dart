@@ -1,0 +1,141 @@
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import 'home_screen.dart';
+import 'store_screen.dart';
+import 'agenda_screen.dart';
+import 'registro_screen.dart';
+import 'perfil_screen.dart';
+
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
+
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> {
+  int _currentIndex = 2;
+
+  final List<Widget> _screens = const [
+    StoreScreen(),
+    AgendaScreen(),
+    HomeScreen(),
+    RegistroScreen(),
+    PerfilScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 8,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavItem(
+                  imagePath: 'assets/images/tienda_ss.png',
+                  label: 'Tienda',
+                  index: 0,
+                  currentIndex: _currentIndex,
+                  onTap: (i) => setState(() => _currentIndex = i),
+                ),
+                _NavItem(
+                  imagePath: 'assets/images/calendario_ss.png',
+                  label: 'Agenda',
+                  index: 1,
+                  currentIndex: _currentIndex,
+                  onTap: (i) => setState(() => _currentIndex = i),
+                ),
+                _NavItem(
+                  imagePath: 'assets/images/inicio_ss.png',
+                  label: 'Inicio',
+                  index: 2,
+                  currentIndex: _currentIndex,
+                  onTap: (i) => setState(() => _currentIndex = i),
+                ),
+                _NavItem(
+                  imagePath: 'assets/images/registros_ss.png',
+                  label: 'Registro',
+                  index: 3,
+                  currentIndex: _currentIndex,
+                  onTap: (i) => setState(() => _currentIndex = i),
+                ),
+                _NavItem(
+                  imagePath: 'assets/images/perfil_ss.png',
+                  label: 'Perfil',
+                  index: 4,
+                  currentIndex: _currentIndex,
+                  onTap: (i) => setState(() => _currentIndex = i),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final String imagePath;
+  final String label;
+  final int index;
+  final int currentIndex;
+  final void Function(int) onTap;
+
+  const _NavItem({
+    required this.imagePath,
+    required this.label,
+    required this.index,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = index == currentIndex;
+    return GestureDetector(
+      onTap: () => onTap(index),
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 60,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              imagePath,
+              width: 26,
+              height: 26,
+              color: selected ? AppColors.green : AppColors.textLight,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: selected ? AppColors.green : AppColors.textLight,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

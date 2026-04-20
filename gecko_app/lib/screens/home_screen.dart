@@ -1,0 +1,664 @@
+import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
+import '../theme/app_theme.dart';
+import '../models/gecko.dart';
+import '../data/mock_data.dart';
+import '../widgets/common_widgets.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = DateTime.now();
+  }
+
+  List<GeckoEvent> get _eventsForSelected {
+    if (_selectedDay == null) return [];
+    return MockData.events.where((e) =>
+        e.date.year == _selectedDay!.year &&
+        e.date.month == _selectedDay!.month &&
+        e.date.day == _selectedDay!.day).toList();
+  }
+
+  List<GeckoEvent> get _upcomingEvents {
+    final now = DateTime.now();
+    return MockData.events
+        .where((e) => e.date.isAfter(now.subtract(const Duration(days: 1))))
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.cream,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // ── Header ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Hola, Cass',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textDark),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                width: 60,
+                                height: 2,
+                                color: AppColors.border,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Íconos de cabecera
+                    Row(
+                      children: [
+                        _HeaderIcon(icon: Icons.help_outline, onTap: () {}),
+                        const SizedBox(width: 8),
+                        _AvatarIcon(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── Tip card ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: TipCard(
+                  title: 'Cuida mejor, conoce más',
+                  subtitle: '¿Sabías esto sobre tu mascota?',
+                  onTap: () {},
+                ),
+              ),
+            ),
+
+            // ── Mis geckos ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: SectionHeader(
+                  title: 'Mis geckos',
+                  trailing: GreenFab(onTap: () => _showAddGeckoSheet(context)),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SizedBox(
+                  height: 200,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: MockData.geckos.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (context, i) {
+                      final gecko = MockData.geckos[i];
+                      return SizedBox(
+                        width: 150,
+                        child: GeckoCard(
+                          name: gecko.name,
+                          age: gecko.age,
+                          gender: gecko.gender,
+                          imageUrl: gecko.imageUrl,
+                          onTap: () {},
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Descripción ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                child: Text(
+                  'Aquí podrás encontrar a tus bichitos',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textLight),
+                ),
+              ),
+            ),
+
+            // ── Mini calendario ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border:
+                        Border.all(color: AppColors.border, width: 0.5),
+                  ),
+                  child: TableCalendar(
+                    firstDay: DateTime.utc(2024, 1, 1),
+                    lastDay: DateTime.utc(2027, 12, 31),
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) =>
+                        isSameDay(_selectedDay, day),
+                    calendarFormat: CalendarFormat.week,
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    eventLoader: (day) {
+                      return MockData.events
+                          .where((e) =>
+                              e.date.year == day.year &&
+                              e.date.month == day.month &&
+                              e.date.day == day.day)
+                          .toList();
+                    },
+                    calendarStyle: CalendarStyle(
+                      todayDecoration: BoxDecoration(
+                        color: AppColors.greenLight.withOpacity(0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: const BoxDecoration(
+                        color: AppColors.green,
+                        shape: BoxShape.circle,
+                      ),
+                      markerDecoration: const BoxDecoration(
+                        color: AppColors.orange,
+                        shape: BoxShape.circle,
+                      ),
+                      todayTextStyle:
+                          const TextStyle(color: AppColors.textDark),
+                      selectedTextStyle:
+                          const TextStyle(color: Colors.white),
+                      defaultTextStyle:
+                          const TextStyle(color: AppColors.textDark),
+                      weekendTextStyle:
+                          const TextStyle(color: AppColors.textMedium),
+                      outsideTextStyle:
+                          const TextStyle(color: AppColors.textLight),
+                    ),
+                    headerStyle: const HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                      titleTextStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark),
+                      leftChevronIcon:
+                          Icon(Icons.chevron_left, color: AppColors.green),
+                      rightChevronIcon:
+                          Icon(Icons.chevron_right, color: AppColors.green),
+                    ),
+                    daysOfWeekStyle: const DaysOfWeekStyle(
+                      weekdayStyle:
+                          TextStyle(fontSize: 11, color: AppColors.textLight),
+                      weekendStyle:
+                          TextStyle(fontSize: 11, color: AppColors.textLight),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Próximos eventos ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                child: SectionHeader(
+                  title: 'Próximos eventos',
+                  trailing: GreenFab(onTap: () => _showAddEventSheet(context)),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 4, left: 20, right: 20),
+                child: Text(
+                  'Organiza tus momentos importantes',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textLight),
+                ),
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) {
+                  final event = _upcomingEvents[i];
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    child: EventRow(
+                      date: event.date,
+                      title: event.title,
+                      type: event.type,
+                      time: event.time,
+                    ),
+                  );
+                },
+                childCount: _upcomingEvents.length,
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddGeckoSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _AddGeckoSheet(),
+    );
+  }
+
+  void _showAddEventSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _AddEventSheet(),
+    );
+  }
+}
+
+// ─── Header icon button ───
+class _HeaderIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _HeaderIcon({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border, width: 0.5),
+        ),
+        child: Icon(icon, size: 18, color: AppColors.textMedium),
+      ),
+    );
+  }
+}
+
+class _AvatarIcon extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: const BoxDecoration(
+        color: AppColors.greenSurface,
+        shape: BoxShape.circle,
+      ),
+      child: const Center(
+        child: Text('CB',
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.green)),
+      ),
+    );
+  }
+}
+
+// ─── Bottom sheet: agregar gecko ───
+class _AddGeckoSheet extends StatefulWidget {
+  const _AddGeckoSheet();
+
+  @override
+  State<_AddGeckoSheet> createState() => _AddGeckoSheetState();
+}
+
+class _AddGeckoSheetState extends State<_AddGeckoSheet> {
+  final _nameController = TextEditingController();
+  final _morphController = TextEditingController();
+  String _gender = 'unknown';
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Agregar gecko',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textDark)),
+          const SizedBox(height: 20),
+          _SheetField(
+              controller: _nameController, label: 'Nombre', hint: 'Ej: Mondo'),
+          const SizedBox(height: 12),
+          _SheetField(
+              controller: _morphController,
+              label: 'Morph',
+              hint: 'Ej: Albino Tremper'),
+          const SizedBox(height: 12),
+          const Text('Género',
+              style: TextStyle(fontSize: 13, color: AppColors.textMedium)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _GenderChip(
+                  label: 'Macho',
+                  value: 'male',
+                  selected: _gender == 'male',
+                  onTap: () => setState(() => _gender = 'male')),
+              const SizedBox(width: 8),
+              _GenderChip(
+                  label: 'Hembra',
+                  value: 'female',
+                  selected: _gender == 'female',
+                  onTap: () => setState(() => _gender = 'female')),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
+              child: const Text('Guardar',
+                  style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SheetField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+
+  const _SheetField(
+      {required this.controller, required this.label, required this.hint});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(fontSize: 13, color: AppColors.textMedium)),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle:
+                const TextStyle(fontSize: 14, color: AppColors.textLight),
+            filled: true,
+            fillColor: AppColors.cream,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppColors.border, width: 0.5),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppColors.border, width: 0.5),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide:
+                  const BorderSide(color: AppColors.green, width: 1.5),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GenderChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _GenderChip(
+      {required this.label,
+      required this.value,
+      required this.selected,
+      required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.greenCard : AppColors.cream,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected ? AppColors.green : AppColors.border,
+            width: selected ? 1.5 : 0.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: selected ? AppColors.green : AppColors.textMedium,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Bottom sheet: agregar evento ───
+class _AddEventSheet extends StatefulWidget {
+  const _AddEventSheet();
+
+  @override
+  State<_AddEventSheet> createState() => _AddEventSheetState();
+}
+
+class _AddEventSheetState extends State<_AddEventSheet> {
+  final _titleController = TextEditingController();
+  String _type = 'checkup';
+  DateTime _selectedDate = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Nuevo evento',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textDark)),
+          const SizedBox(height: 20),
+          _SheetField(
+              controller: _titleController,
+              label: 'Descripción',
+              hint: 'Ej: Revisión rutinaria'),
+          const SizedBox(height: 12),
+          const Text('Tipo',
+              style: TextStyle(fontSize: 13, color: AppColors.textMedium)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              _GenderChip(
+                  label: 'Vacuna',
+                  value: 'vaccine',
+                  selected: _type == 'vaccine',
+                  onTap: () => setState(() => _type = 'vaccine')),
+              _GenderChip(
+                  label: 'Revisión',
+                  value: 'checkup',
+                  selected: _type == 'checkup',
+                  onTap: () => setState(() => _type = 'checkup')),
+              _GenderChip(
+                  label: 'Alimento',
+                  value: 'food',
+                  selected: _type == 'food',
+                  onTap: () => setState(() => _type = 'food')),
+            ],
+          ),
+          const SizedBox(height: 20),
+          GestureDetector(
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate,
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 365)),
+                builder: (ctx, child) => Theme(
+                  data: Theme.of(ctx).copyWith(
+                    colorScheme: const ColorScheme.light(
+                        primary: AppColors.green),
+                  ),
+                  child: child!,
+                ),
+              );
+              if (picked != null) {
+                setState(() => _selectedDate = picked);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cream,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border, width: 0.5),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today,
+                      size: 16, color: AppColors.green),
+                  const SizedBox(width: 10),
+                  Text(
+                    '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.textDark),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
+              child: const Text('Guardar',
+                  style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
