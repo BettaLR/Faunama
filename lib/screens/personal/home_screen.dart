@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../theme/app_theme.dart';
-import '../models/gecko.dart';
-import '../data/mock_data.dart';
-import '../widgets/common_widgets.dart';
+import '../../theme/app_theme.dart';
+import '../../models/gecko.dart';
+import '../../data/mock_data.dart';
+import '../../widgets/common_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

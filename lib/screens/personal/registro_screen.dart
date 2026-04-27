@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../data/mock_data.dart';
-import '../models/gecko.dart';
+import '../../theme/app_theme.dart';
+import '../../data/mock_data.dart';
+import '../../models/gecko.dart';
 
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});

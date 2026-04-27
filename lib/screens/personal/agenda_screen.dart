@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../theme/app_theme.dart';
-import '../data/mock_data.dart';
-import '../models/gecko.dart';
+import '../../theme/app_theme.dart';
+import '../../data/mock_data.dart';
+import '../../models/gecko.dart';
 
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});

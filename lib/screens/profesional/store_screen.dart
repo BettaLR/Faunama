@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../data/mock_data.dart';
-import '../models/gecko.dart';
+import '../../theme/app_theme.dart';
+import '../../data/mock_data.dart';
+import '../../models/gecko.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -101,9 +101,37 @@ class _StoreScreenState extends State<StoreScreen> {
                 ],
               ),
             ),
+            // Subtítulo con botón de añadir
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('¡Vende ejemplares o busca un nuevo amigo!',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark)),
+                  GestureDetector(
+                    onTap: () {
+                      // Acción para añadir nueva categoría
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE1677D),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(Icons.add, color: Colors.black, size: 20),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             // Filtros
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -119,7 +147,7 @@ class _StoreScreenState extends State<StoreScreen> {
                           color: selected
                               ? const Color(0xFFE1677D)
                               : const Color(0xFFA0BC4D),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                               color: selected
                                   ? const Color(0xFFE1677D)

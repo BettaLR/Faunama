@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
-import 'screens/main_shell.dart';
+import 'screens/welcome_screen.dart';
+import 'screens/personal/main_shell.dart';
+import 'screens/profesional/main_shell.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,10 +21,15 @@ class GeckoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gecko App',
+      title: 'Faunama',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: const MainShell(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WelcomeScreen(),
+        '/personal': (context) => const PersonalMainShell(),
+        '/profesional': (context) => const ProfesionalMainShell(),
+      },
     );
   }
 }

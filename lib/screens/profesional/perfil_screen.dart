@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../../theme/app_theme.dart';
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
@@ -93,7 +93,7 @@ class PerfilScreen extends StatelessWidget {
                                     fontSize: 12,
                                     color: Color.fromARGB(255, 0, 0, 0))),
                             const SizedBox(height: 4),
-                            const Text('cuidador',
+                            const Text('experto',
                                 style: TextStyle(
                                     fontSize: 11,
                                     color: Color.fromARGB(255, 0, 0, 0))),
@@ -161,8 +161,8 @@ class PerfilScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: _ProfileSection(
-                title: 'Conviértete en...',
-                subtitle: 'El dueño que tu mascota desea',
+                title: 'Obtén...',
+                subtitle: 'Las herramientas que llevar un mejor registro',
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(

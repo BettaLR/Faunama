@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'store_screen.dart';
 import 'agenda_screen.dart';
 import 'registro_screen.dart';
 import 'perfil_screen.dart';
 
-class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+class ProfesionalMainShell extends StatefulWidget {
+  const ProfesionalMainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  State<ProfesionalMainShell> createState() => _ProfesionalMainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _ProfesionalMainShellState extends State<ProfesionalMainShell> {
   int _currentIndex = 2;
 
   final List<Widget> _screens = const [
@@ -82,7 +82,7 @@ class _MainShellState extends State<MainShell> {
                     ),
                     _NavItem(
                       imagePath: 'assets/images/registros_ss.png',
-                      label: 'Registro',
+                      label: 'Pacientes',
                       index: 3,
                       currentIndex: _currentIndex,
                       onTap: (i) => setState(() => _currentIndex = i),
