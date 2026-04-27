@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Header ──
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
                 child: Row(
                   children: [
                     Expanded(
@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Mis geckos ──
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
                 child: SectionHeader(
                   title: 'Mis geckos',
                   trailing: GreenFab(onTap: () => _showAddGeckoSheet(context)),
@@ -141,11 +141,11 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Descripción ──
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
                 child: Text(
                   'Aquí podrás encontrar a tus bichitos',
                   style: const TextStyle(
-                      fontSize: 12, color: AppColors.textLight),
+                      fontSize: 12, color: Colors.black),
                 ),
               ),
             ),
@@ -153,10 +153,11 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Mini calendario ──
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
                 child: Container(
+                  height: 145,
                   decoration: BoxDecoration(
-                    color: AppColors.white,
+                    color: const Color(0xFFFBE3CF),
                     borderRadius: BorderRadius.circular(16),
                     border:
                         Border.all(color: AppColors.border, width: 0.5),
@@ -184,12 +185,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     calendarStyle: CalendarStyle(
                       todayDecoration: BoxDecoration(
-                        color: AppColors.greenLight.withOpacity(0.4),
-                        shape: BoxShape.circle,
+                        color: const Color(0xFFFFF2E9),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      selectedDecoration: const BoxDecoration(
-                        color: AppColors.green,
-                        shape: BoxShape.circle,
+                      selectedDecoration: BoxDecoration(
+                        color: const Color(0xFFFF994D),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       markerDecoration: const BoxDecoration(
                         color: AppColors.orange,
@@ -198,13 +199,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       todayTextStyle:
                           const TextStyle(color: AppColors.textDark),
                       selectedTextStyle:
-                          const TextStyle(color: Colors.white),
+                          const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       defaultTextStyle:
                           const TextStyle(color: AppColors.textDark),
                       weekendTextStyle:
-                          const TextStyle(color: AppColors.textMedium),
+                          const TextStyle(color: Colors.black),
                       outsideTextStyle:
-                          const TextStyle(color: AppColors.textLight),
+                          const TextStyle(color: Colors.black),
                     ),
                     headerStyle: const HeaderStyle(
                       formatButtonVisible: false,
@@ -214,15 +215,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.w600,
                           color: AppColors.textDark),
                       leftChevronIcon:
-                          Icon(Icons.chevron_left, color: AppColors.green),
+                          Icon(Icons.chevron_left, color: Colors.black),
                       rightChevronIcon:
-                          Icon(Icons.chevron_right, color: AppColors.green),
+                          Icon(Icons.chevron_right, color: Colors.black),
                     ),
                     daysOfWeekStyle: const DaysOfWeekStyle(
                       weekdayStyle:
-                          TextStyle(fontSize: 11, color: AppColors.textLight),
+                          const TextStyle(fontSize: 11, color: Colors.black),
                       weekendStyle:
-                          TextStyle(fontSize: 11, color: AppColors.textLight),
+                          const TextStyle(fontSize: 11, color: Colors.black),
                     ),
                   ),
                 ),
@@ -232,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Próximos eventos ──
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
                 child: SectionHeader(
                   title: 'Próximos eventos',
                   trailing: GreenFab(onTap: () => _showAddEventSheet(context)),
@@ -241,11 +242,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 4, left: 20, right: 20),
+                padding: const EdgeInsets.only(bottom: 15, left: 20, right: 20),
                 child: Text(
                   'Organiza tus momentos importantes',
                   style: const TextStyle(
-                      fontSize: 12, color: AppColors.textLight),
+                      fontSize: 12, color: Colors.black),
                 ),
               ),
             ),
@@ -305,14 +306,14 @@ class _HeaderIcon extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: const Color(0xFFA0BC4D),
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border, width: 0.5),
+          border: Border.all(color: const Color(0xFFA0BC4D), width: 0.5),
         ),
-        child: Icon(icon, size: 18, color: AppColors.textMedium),
+        child: Icon(icon, size: 20, color: const Color.fromARGB(255, 0, 0, 0)),
       ),
     );
   }
@@ -322,18 +323,17 @@ class _AvatarIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 36,
-      height: 36,
-      decoration: const BoxDecoration(
-        color: AppColors.greenSurface,
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFA0BC4D), width: 2),
       ),
-      child: const Center(
-        child: Text('CB',
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.green)),
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/icono_perfil.png',
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
@@ -385,7 +385,7 @@ class _AddGeckoSheetState extends State<_AddGeckoSheet> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textDark)),
+                  color: Color.fromARGB(255, 0, 0, 0))),
           const SizedBox(height: 20),
           _SheetField(
               controller: _nameController, label: 'Nombre', hint: 'Ej: Mondo'),
@@ -396,7 +396,7 @@ class _AddGeckoSheetState extends State<_AddGeckoSheet> {
               hint: 'Ej: Albino Tremper'),
           const SizedBox(height: 12),
           const Text('Género',
-              style: TextStyle(fontSize: 13, color: AppColors.textMedium)),
+              style: TextStyle(fontSize: 13, color: Colors.black)),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -451,14 +451,14 @@ class _SheetField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(fontSize: 13, color: AppColors.textMedium)),
+            style: const TextStyle(fontSize: 13, color: Colors.black)),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                const TextStyle(fontSize: 14, color: AppColors.textLight),
+                const TextStyle(fontSize: 14, color: Colors.black),
             filled: true,
             fillColor: AppColors.cream,
             contentPadding:
@@ -516,7 +516,7 @@ class _GenderChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: selected ? AppColors.green : AppColors.textMedium,
+            color: selected ? AppColors.green : Colors.black,
           ),
         ),
       ),
@@ -568,7 +568,7 @@ class _AddEventSheetState extends State<_AddEventSheet> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textDark)),
+                  color: Color.fromARGB(255, 0, 0, 0))),
           const SizedBox(height: 20),
           _SheetField(
               controller: _titleController,
@@ -576,7 +576,7 @@ class _AddEventSheetState extends State<_AddEventSheet> {
               hint: 'Ej: Revisión rutinaria'),
           const SizedBox(height: 12),
           const Text('Tipo',
-              style: TextStyle(fontSize: 13, color: AppColors.textMedium)),
+              style: TextStyle(fontSize: 13, color: Colors.black)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -633,7 +633,7 @@ class _AddEventSheetState extends State<_AddEventSheet> {
                   Text(
                     '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                     style: const TextStyle(
-                        fontSize: 14, color: AppColors.textDark),
+                        fontSize: 14, color: Color.fromARGB(255, 0, 0, 0)),
                   ),
                 ],
               ),

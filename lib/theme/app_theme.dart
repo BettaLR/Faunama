@@ -38,38 +38,38 @@ class AppTheme {
         background: AppColors.cream,
       ),
       scaffoldBackgroundColor: AppColors.cream,
-      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-        headlineLarge: GoogleFonts.poppins(
+      textTheme: GoogleFonts.robotoTextTheme().copyWith(
+        headlineLarge: GoogleFonts.roboto(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: AppColors.textDark,
         ),
-        headlineMedium: GoogleFonts.poppins(
+        headlineMedium: GoogleFonts.roboto(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.textDark,
         ),
-        titleLarge: GoogleFonts.poppins(
+        titleLarge: GoogleFonts.roboto(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.textDark,
         ),
-        titleMedium: GoogleFonts.poppins(
+        titleMedium: GoogleFonts.roboto(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.textDark,
         ),
-        bodyLarge: GoogleFonts.poppins(
+        bodyLarge: GoogleFonts.roboto(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: AppColors.textMedium,
         ),
-        bodyMedium: GoogleFonts.poppins(
+        bodyMedium: GoogleFonts.roboto(
           fontSize: 12,
           fontWeight: FontWeight.w400,
           color: AppColors.textMedium,
         ),
-        bodySmall: GoogleFonts.poppins(
+        bodySmall: GoogleFonts.roboto(
           fontSize: 11,
           fontWeight: FontWeight.w400,
           color: AppColors.textLight,

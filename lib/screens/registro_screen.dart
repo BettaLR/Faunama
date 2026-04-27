@@ -22,66 +22,74 @@ class _RegistroScreenState extends State<RegistroScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header verde
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-              decoration: const BoxDecoration(
-                color: AppColors.green,
-                borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(24)),
-              ),
-              child: Column(
-                children: [
-                  const Text('Seguimiento',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white)),
-                  const SizedBox(height: 12),
-                  // Selector de gecko
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          if (_selectedGeckoIndex > 0) {
-                            setState(() => _selectedGeckoIndex--);
-                          }
-                        },
-                        child: const Icon(Icons.chevron_left,
-                            color: Colors.white),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
+            // Header verde con arco
+            ClipPath(
+              clipper: _BottomArcClipper(),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 40, 20, 90),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFA0BC4D),
+                ),
+                child: Column(
+                  children: [
+                    const Text('Seguimiento',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black)),
+                    const SizedBox(height: 12),
+                    // Selector de gecko
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (_selectedGeckoIndex > 0) {
+                                setState(() => _selectedGeckoIndex--);
+                              }
+                            },
+                            child: const Icon(Icons.chevron_left,
+                                color: Colors.black),
+                          ),
                         ),
-                        child: Text(
-                          _currentGecko.name,
-                          style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
+                        Expanded(
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFBF4EA),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                _currentGecko.name,
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                          if (_selectedGeckoIndex <
-                              MockData.geckos.length - 1) {
-                            setState(() => _selectedGeckoIndex++);
-                          }
-                        },
-                        child: const Icon(Icons.chevron_right,
-                            color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ],
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (_selectedGeckoIndex <
+                                  MockData.geckos.length - 1) {
+                                setState(() => _selectedGeckoIndex++);
+                              }
+                            },
+                            child: const Icon(Icons.chevron_right,
+                                color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -131,6 +139,26 @@ class _RegistroScreenState extends State<RegistroScreen> {
   }
 }
 
+class _BottomArcClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 20);
+    path.quadraticBezierTo(
+      size.width / 2,
+      size.height - 80,
+      size.width,
+      size.height - 20,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
 class _TrackingSection extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -164,16 +192,16 @@ class _TrackingSection extends StatelessWidget {
                 children: [
                   const Text('Historial',
                       style: TextStyle(
-                          fontSize: 12, color: AppColors.textLight)),
-                  const SizedBox(width: 4),
+                          fontSize: 13, color: Color.fromARGB(255, 0, 0, 0))),
+                  const SizedBox(width: 10),
                   Container(
-                    width: 20,
+                    width: 30,
                     height: 20,
                     decoration: BoxDecoration(
-                        color: AppColors.greenCard,
-                        borderRadius: BorderRadius.circular(6)),
+                        color: const Color(0xFFE1677D),
+                        borderRadius: BorderRadius.circular(15)),
                     child: const Icon(Icons.chevron_right,
-                        size: 14, color: AppColors.green),
+                        size: 20, color: Color.fromARGB(255, 0, 0, 0)),
                   ),
                 ],
               ),
@@ -196,20 +224,19 @@ class _WeightCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: const Color(0xFFFBE3CF),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border, width: 0.5),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 70,
+            height: 70,
             decoration: BoxDecoration(
-                color: AppColors.greenCard,
+                color: const Color.fromARGB(0, 234, 243, 222),
                 borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.monitor_weight_outlined,
-                color: AppColors.green, size: 24),
+            child: Image.asset('assets/images/peso.png'),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -218,33 +245,31 @@ class _WeightCard extends StatelessWidget {
               children: [
                 const Text('Registrar peso actual',
                     style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textDark)),
-                Row(
-                  children: [
-                    Text(
-                      '${gecko.weightKg} kg',
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textDark),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text('Día | Mes',
-                        style: TextStyle(
-                            fontSize: 11, color: AppColors.textLight)),
-                  ],
+                        color: Color.fromARGB(255, 0, 0, 0))),
+                const SizedBox(height: 0),
+                Text(
+                  '${gecko.weightKg} kg',
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color.fromARGB(255, 0, 0, 0)),
                 ),
+                const SizedBox(height: 0),
+                const Text('Día | Mes',
+                    style: TextStyle(
+                        fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
               ],
             ),
           ),
           Container(
-            width: 28,
+            width: 40,
             height: 28,
-            decoration: const BoxDecoration(
-                color: AppColors.green, shape: BoxShape.circle),
-            child: const Icon(Icons.add, color: Colors.white, size: 16),
+            decoration: BoxDecoration(
+                color: const Color(0xFFFF994D),
+                borderRadius: BorderRadius.circular(15)),
+            child: const Icon(Icons.add, color: Colors.black, size: 20),
           ),
         ],
       ),
@@ -261,20 +286,19 @@ class _FoodCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: const Color(0xFFFBE3CF),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border, width: 0.5),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 70,
+            height: 70,
             decoration: BoxDecoration(
-                color: AppColors.orangeSurface,
+                color: const Color.fromARGB(0, 234, 243, 222),
                 borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.restaurant_outlined,
-                color: AppColors.orange, size: 24),
+            child: Image.asset('assets/images/comida.png'),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -283,26 +307,27 @@ class _FoodCard extends StatelessWidget {
               children: const [
                 Text('Horario de comida',
                     style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textDark)),
+                        color: Color.fromARGB(255, 0, 0, 0))),
                 Text('0:00 am/pm',
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textDark)),
+                        color: Color.fromARGB(255, 0, 0, 0))),
                 Text('Tipo de comida | Grillo',
                     style:
-                        TextStyle(fontSize: 11, color: AppColors.textLight)),
+                        TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
               ],
             ),
           ),
           Container(
-            width: 28,
+            width: 40,
             height: 28,
-            decoration: const BoxDecoration(
-                color: AppColors.green, shape: BoxShape.circle),
-            child: const Icon(Icons.add, color: Colors.white, size: 16),
+            decoration: BoxDecoration(
+                color: const Color(0xFFFF994D),
+                borderRadius: BorderRadius.circular(15)),
+            child: const Icon(Icons.add, color: Colors.black, size: 20),
           ),
         ],
       ),
@@ -316,20 +341,19 @@ class _BehaviorCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: const Color(0xFFFBE3CF),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border, width: 0.5),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 70,
+            height: 70,
             decoration: BoxDecoration(
-                color: AppColors.greenCard,
+                color: const Color.fromARGB(0, 234, 243, 222),
                 borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.psychology_outlined,
-                color: AppColors.greenLight, size: 24),
+            child: Image.asset('assets/images/comportamiento.png'),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -338,21 +362,22 @@ class _BehaviorCard extends StatelessWidget {
               children: [
                 Text('Actitudes nuevas',
                     style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textDark)),
+                        color: Color.fromARGB(255, 0, 0, 0))),
                 Text('| notas.',
                     style: TextStyle(
-                        fontSize: 11, color: AppColors.textLight)),
+                        fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
               ],
             ),
           ),
           Container(
-            width: 28,
+            width: 40,
             height: 28,
-            decoration: const BoxDecoration(
-                color: AppColors.green, shape: BoxShape.circle),
-            child: const Icon(Icons.add, color: Colors.white, size: 16),
+            decoration: BoxDecoration(
+                color: const Color(0xFFFF994D),
+                borderRadius: BorderRadius.circular(15)),
+            child: const Icon(Icons.add, color: Colors.black, size: 20),
           ),
         ],
       ),
@@ -366,20 +391,19 @@ class _SymptomsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: const Color(0xFFFBE3CF),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border, width: 0.5),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 70,
+            height: 70,
             decoration: BoxDecoration(
-                color: AppColors.orangeSurface,
+                color: const Color.fromARGB(0, 234, 243, 222),
                 borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.medical_services_outlined,
-                color: AppColors.orange, size: 24),
+            child: Image.asset('assets/images/observaciones.png'),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -388,21 +412,22 @@ class _SymptomsCard extends StatelessWidget {
               children: [
                 Text('Observaciones',
                     style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textDark)),
+                        color: Color.fromARGB(255, 0, 0, 0))),
                 Text('Sin registros recientes',
                     style: TextStyle(
-                        fontSize: 11, color: AppColors.textLight)),
+                        fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
               ],
             ),
           ),
           Container(
-            width: 28,
+            width: 40,
             height: 28,
-            decoration: const BoxDecoration(
-                color: AppColors.green, shape: BoxShape.circle),
-            child: const Icon(Icons.add, color: Colors.white, size: 16),
+            decoration: BoxDecoration(
+                color: const Color(0xFFFF994D),
+                borderRadius: BorderRadius.circular(15)),
+            child: const Icon(Icons.add, color: Colors.black, size: 20),
           ),
         ],
       ),
