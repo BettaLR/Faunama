@@ -496,6 +496,7 @@ class _SegmentedFormatToggleState extends State<_SegmentedFormatToggle>
   }
 }
 
+// ignore: unused_element
 class _FormatToggle extends StatelessWidget {
   final String label;
   final bool selected;

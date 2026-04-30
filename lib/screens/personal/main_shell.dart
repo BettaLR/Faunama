@@ -7,7 +7,9 @@ import 'registro_screen.dart';
 import 'perfil_screen.dart';
 
 class PersonalMainShell extends StatefulWidget {
-  const PersonalMainShell({super.key});
+  static final GlobalKey<_PersonalMainShellState> globalKey = GlobalKey<_PersonalMainShellState>();
+
+  const PersonalMainShell({Key? key}) : super(key: key);
 
   @override
   State<PersonalMainShell> createState() => _PersonalMainShellState();
@@ -15,14 +17,28 @@ class PersonalMainShell extends StatefulWidget {
 
 class _PersonalMainShellState extends State<PersonalMainShell> {
   int _currentIndex = 2;
+  int? _registroInitialIndex;
 
-  final List<Widget> _screens = const [
-    StoreScreen(),
-    AgendaScreen(),
-    HomeScreen(),
-    RegistroScreen(),
-    PerfilScreen(),
-  ];
+  void openRegistro({int? geckoIndex}) {
+    setState(() {
+      _currentIndex = 3;
+      _registroInitialIndex = geckoIndex;
+    });
+  }
+
+  void openPerfil() {
+    setState(() {
+      _currentIndex = 4;
+    });
+  }
+
+  List<Widget> get _screens => [
+        const StoreScreen(),
+        const AgendaScreen(),
+        const HomeScreen(),
+        RegistroScreen(initialIndex: _registroInitialIndex),
+        const PerfilScreen(),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +71,7 @@ class _PersonalMainShellState extends State<PersonalMainShell> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.only(top: 8, bottom: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

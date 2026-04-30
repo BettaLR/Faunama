@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../theme/app_theme.dart';
 import '../../models/gecko.dart';
 import '../../data/mock_data.dart';
 import '../../widgets/common_widgets.dart';
+import 'subpantallas/blog_screen.dart';
+import 'main_shell.dart';
+// import 'registro_screen.dart'; // import no usado, comentado
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,8 +25,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
+    _loadData();
   }
 
+  void _loadData() async {
+    await MockData.init();
+    setState(() {});
+  }
+
+  // ignore: unused_element
   List<GeckoEvent> get _eventsForSelected {
     if (_selectedDay == null) return [];
     return MockData.events.where((e) =>
@@ -36,6 +48,13 @@ class _HomeScreenState extends State<HomeScreen> {
         .where((e) => e.date.isAfter(now.subtract(const Duration(days: 1))))
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
+  }
+  
+  // Only show the 3 nearest upcoming events on the home screen
+  List<GeckoEvent> get _upcomingEventsLimited {
+    final events = _upcomingEvents;
+    if (events.length <= 3) return events;
+    return events.take(3).toList();
   }
 
   @override
@@ -78,9 +97,54 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Íconos de cabecera
                     Row(
                       children: [
-                        _HeaderIcon(icon: Icons.help_outline, onTap: () {}),
+                        _HeaderIcon(
+                          icon: Icons.help_outline,
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => Dialog(
+                                backgroundColor: Colors.transparent,
+                                child: Container(
+                                  width: MediaQuery.of(ctx).size.width * 0.86,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 16, 8, 0),
+                                        child: Row(
+                                          children: [
+                                            const Text('Avisos', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)),
+                                            const Spacer(),
+                                            IconButton(
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(),
+                                              icon: const Icon(Icons.close, size: 20, color: Colors.black),
+                                              onPressed: () => Navigator.of(ctx).pop(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                                        child: const Text('No hay avisos nuevos', style: TextStyle(fontSize: 14, color: Colors.black)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                         const SizedBox(width: 8),
-                        _AvatarIcon(),
+                        GestureDetector(
+                          onTap: () => PersonalMainShell.globalKey.currentState?.openPerfil(),
+                          child: _AvatarIcon(),
+                        ),
                       ],
                     ),
                   ],
@@ -95,7 +159,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: TipCard(
                   title: 'Cuida mejor, conoce más',
                   subtitle: '¿Sabías esto sobre tu mascota?',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BlogScreen(),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -115,25 +186,56 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.only(top: 8),
                 child: SizedBox(
                   height: 200,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: MockData.geckos.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (context, i) {
-                      final gecko = MockData.geckos[i];
-                      return SizedBox(
-                        width: 150,
-                        child: GeckoCard(
-                          name: gecko.name,
-                          age: gecko.age,
-                          gender: gecko.gender,
-                          imageUrl: gecko.imageUrl,
-                          onTap: () {},
+                  child: MockData.geckos.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 150,
+                                child: GestureDetector(
+                                  onTap: () => _showAddGeckoSheet(context),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                          color: AppColors.border, width: 0.5),
+                                    ),
+                                    child: const Center(
+                                      child: Text('Añadir mascota',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600)),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: MockData.geckos.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 12),
+                          itemBuilder: (context, i) {
+                            final gecko = MockData.geckos[i];
+                            return SizedBox(
+                              width: 150,
+                              child: GeckoCard(
+                                name: gecko.name,
+                                age: gecko.age,
+                                gender: gecko.gender,
+                                imageUrl: gecko.imageUrl,
+                                onTap: () {
+                                  // Switch main shell to the Registro tab and pass the selected gecko index
+                                  PersonalMainShell.globalKey.currentState?.openRegistro(geckoIndex: i);
+                                },
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ),
             ),
@@ -250,24 +352,47 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, i) {
-                  final event = _upcomingEvents[i];
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                    child: EventRow(
-                      date: event.date,
-                      title: event.title,
-                      type: event.type,
-                      time: event.time,
+            // Rebuild when events change
+            ValueListenableBuilder<int>(
+              valueListenable: MockData.eventsNotifier,
+              builder: (context, _, __) {
+                final events = _upcomingEventsLimited;
+                if (events.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: Text(
+                        'Aun no hay eventos registrados',
+                        style: const TextStyle(fontSize: 13, color: Colors.black), textAlign: TextAlign.center
+                      ),
                     ),
                   );
-                },
-                childCount: _upcomingEvents.length,
-              ),
-            ),
+                }
+
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, i) {
+                      final event = events[i];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                        child: EventRow(
+                          event: event,
+                          onToggleCompleted: (e) {
+                            setState(() {});
+                          },
+                          onDelete: (e) async {
+                            await MockData.removeEvent(e);
+                            setState(() {});
+                          },
+                        ),
+                      );
+                    },
+                    childCount: events.length,
+                  ),
+                );
+              },
+            )
+            ,
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
@@ -281,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const _AddGeckoSheet(),
-    );
+    ).then((_) => setState(() {}));
   }
 
   void _showAddEventSheet(BuildContext context) {
@@ -290,7 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const _AddEventSheet(),
-    );
+    ).then((_) => setState(() {}));
   }
 }
 
@@ -351,6 +476,8 @@ class _AddGeckoSheetState extends State<_AddGeckoSheet> {
   final _nameController = TextEditingController();
   final _morphController = TextEditingController();
   String _gender = 'unknown';
+  String? _imagePath;
+  DateTime? _birthday;
 
   @override
   Widget build(BuildContext context) {
@@ -387,6 +514,28 @@ class _AddGeckoSheetState extends State<_AddGeckoSheet> {
                   fontWeight: FontWeight.w600,
                   color: Color.fromARGB(255, 0, 0, 0))),
           const SizedBox(height: 20),
+          GestureDetector(
+            onTap: () async {
+              final picker = ImagePicker();
+              final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+              if (file != null) setState(() => _imagePath = file.path);
+            },
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                color: AppColors.cream,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border, width: 0.5),
+              ),
+              child: _imagePath == null
+                  ? const Center(child: Icon(Icons.add_a_photo, size: 28))
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.file(File(_imagePath!), fit: BoxFit.cover),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 12),
           _SheetField(
               controller: _nameController, label: 'Nombre', hint: 'Ej: Mondo'),
           const SizedBox(height: 12),
@@ -394,6 +543,42 @@ class _AddGeckoSheetState extends State<_AddGeckoSheet> {
               controller: _morphController,
               label: 'Morph',
               hint: 'Ej: Albino Tremper'),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime.now(),
+                builder: (ctx, child) => Theme(
+                  data: Theme.of(ctx).copyWith(
+                    colorScheme: const ColorScheme.light(primary: AppColors.green),
+                  ),
+                  child: child!,
+                ),
+              );
+              if (picked != null) setState(() => _birthday = picked);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cream,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border, width: 0.5),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today, size: 16, color: AppColors.green),
+                  const SizedBox(width: 10),
+                  Text(
+                    _birthday == null ? 'Fecha de nacimiento' : '${_birthday!.day}/${_birthday!.month}/${_birthday!.year}',
+                    style: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 0, 0, 0)),
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 12),
           const Text('Género',
               style: TextStyle(fontSize: 13, color: Colors.black)),
@@ -416,8 +601,40 @@ class _AddGeckoSheetState extends State<_AddGeckoSheet> {
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              child: ElevatedButton(
+              onPressed: () async {
+                final name = _nameController.text.trim();
+                final morph = _morphController.text.trim();
+                if (name.isEmpty) return;
+                String ageStr = '0 meses';
+                if (_birthday != null) {
+                  final now = DateTime.now();
+                  int years = now.year - _birthday!.year;
+                  int months = now.month - _birthday!.month;
+                  if (now.day < _birthday!.day) months -= 1;
+                  if (months < 0) {
+                    years -= 1;
+                    months += 12;
+                  }
+                  if (years > 0) {
+                    ageStr = years == 1 ? '1 año' : '$years años';
+                    if (months > 0) ageStr += ' y $months meses';
+                  } else {
+                    ageStr = '$months meses';
+                  }
+                }
+                final newGecko = Gecko(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: name,
+                  morph: morph,
+                  age: ageStr,
+                  imageUrl: _imagePath,
+                  gender: _gender,
+                );
+                await MockData.addGecko(newGecko);
+                if (!mounted) return;
+                Navigator.pop(context);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.green,
                 foregroundColor: Colors.white,
@@ -534,8 +751,10 @@ class _AddEventSheet extends StatefulWidget {
 
 class _AddEventSheetState extends State<_AddEventSheet> {
   final _titleController = TextEditingController();
-  String _type = 'checkup';
+  String _type = 'salud';
   DateTime _selectedDate = DateTime.now();
+  TimeOfDay _selectedTime = TimeOfDay.now();
+  final _otherController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -581,23 +800,32 @@ class _AddEventSheetState extends State<_AddEventSheet> {
           Wrap(
             spacing: 8,
             children: [
+                _GenderChip(
+                  label: 'Evento',
+                  value: 'salud',
+                  selected: _type == 'salud',
+                  onTap: () => setState(() => _type = 'salud')),
+                _GenderChip(
+                  label: 'Recordatorio',
+                  value: 'rutina',
+                  selected: _type == 'rutina',
+                  onTap: () => setState(() => _type = 'rutina')),
               _GenderChip(
-                  label: 'Vacuna',
-                  value: 'vaccine',
-                  selected: _type == 'vaccine',
-                  onTap: () => setState(() => _type = 'vaccine')),
-              _GenderChip(
-                  label: 'Revisión',
-                  value: 'checkup',
-                  selected: _type == 'checkup',
-                  onTap: () => setState(() => _type = 'checkup')),
-              _GenderChip(
-                  label: 'Alimento',
-                  value: 'food',
-                  selected: _type == 'food',
-                  onTap: () => setState(() => _type = 'food')),
+                  label: 'Otro',
+                  value: 'otro',
+                  selected: _type == 'otro',
+                  onTap: () => setState(() => _type = 'otro')),
             ],
           ),
+          if (_type == 'otro') ...[
+            const SizedBox(height: 8),
+            TextField(
+              controller: _otherController,
+              decoration: const InputDecoration(
+                hintText: 'Describe el tipo (ej: vacuna casera)',
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () async {
@@ -639,11 +867,63 @@ class _AddEventSheetState extends State<_AddEventSheet> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () async {
+              final picked = await showTimePicker(
+                context: context,
+                initialTime: _selectedTime,
+              );
+              if (picked != null) setState(() => _selectedTime = picked);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cream,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border, width: 0.5),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time, size: 16, color: AppColors.green),
+                  const SizedBox(width: 10),
+                  Text('${_selectedTime.format(context)}', style: const TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+                onPressed: () async {
+                  try {
+                    final id = DateTime.now().millisecondsSinceEpoch.toString();
+                    final typeValue = _type == 'otro' && _otherController.text.isNotEmpty
+                        ? _otherController.text
+                        : _type;
+                    final timeStr = _selectedTime.format(context);
+                    final ge = GeckoEvent(
+                      id: id,
+                      geckoId: '',
+                      date: DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day),
+                      title: _titleController.text.isNotEmpty ? _titleController.text : 'Evento',
+                      type: typeValue,
+                      time: timeStr,
+                    );
+                    // ignore: avoid_print
+                    print('Adding event: ${ge.toJson()}');
+                    await MockData.addEvent(ge);
+                    // ignore: avoid_print
+                    print('Event added successfully');
+                  } catch (e, st) {
+                    // ignore: avoid_print
+                    print('Error saving event (personal): $e');
+                    // ignore: avoid_print
+                    print(st);
+                  }
+                  Navigator.pop(context);
+                },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.green,
                 foregroundColor: Colors.white,

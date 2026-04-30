@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import 'subpantallas/invitacion_screen.dart';
+import 'subpantallas/planes_screen.dart';
+import 'subpantallas/ajustes_screen.dart';
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
@@ -33,7 +36,7 @@ class PerfilScreen extends StatelessWidget {
                         Align(
                           alignment: Alignment.centerRight,
                           child: GestureDetector(
-                            onTap: () {},
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AjustesScreen())),
                             child: Container(
                               width: 40,
                               height: 40,
@@ -128,27 +131,22 @@ class PerfilScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: _ProfileSection(
                 title: 'Invitar familiar',
-                trailing: Container(
+                trailing: GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitacionScreen())),
+                  child: Container(
                     width: 40,
                     height: 30,
-                    decoration: BoxDecoration(
-                        color: const Color(0xFFE1677D),
-                        borderRadius: BorderRadius.circular(15)),
-                    child: const Icon(Icons.add,
-                        size: 20, color: Color.fromARGB(255, 0, 0, 0)),
+                    decoration: BoxDecoration(color: const Color(0xFFE1677D), borderRadius: BorderRadius.circular(15)),
+                    child: const Icon(Icons.add, size: 20, color: Color.fromARGB(255, 0, 0, 0)),
                   ),
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFBE3CF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Image(
-                      image: AssetImage('assets/images/invitar_familiar.png'),
-                      fit: BoxFit.contain,
-                      width: 350,
-                      height: 300,
+                ),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitacionScreen())),
+                  child: Container(
+                    height: 150,
+                    decoration: BoxDecoration(color: const Color(0xFFFBE3CF), borderRadius: BorderRadius.circular(12)),
+                    child: const Center(
+                      child: Image(image: AssetImage('assets/images/invitar_familiar.png'), fit: BoxFit.contain, width: 350, height: 300),
                     ),
                   ),
                 ),
@@ -163,56 +161,37 @@ class PerfilScreen extends StatelessWidget {
               child: _ProfileSection(
                 title: 'Conviértete en...',
                 subtitle: 'El dueño que tu mascota desea',
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFBE3CF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(0, 232, 132, 74).withOpacity(0.0),
-                          borderRadius: BorderRadius.circular(8),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlanesScreen())),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: const Color(0xFFFBE3CF), borderRadius: BorderRadius.circular(12)),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(color: const Color.fromARGB(0, 232, 132, 74).withOpacity(0.0), borderRadius: BorderRadius.circular(8)),
+                          child: const Image(image: AssetImage('assets/images/planes.png'), fit: BoxFit.contain),
                         ),
-                        child: const Image(
-                          image: AssetImage('assets/images/planes.png'),
-                          fit: BoxFit.contain,
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Conoce todos nuestros planes...', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 0, 0, 0))),
+                              Text('Con ellos podras desbloquear más funciones', style: TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Conoce todos nuestros planes...',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromARGB(255, 0, 0, 0))),
-                            Text('Con ellos podras desbloquear más funciones',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Color.fromARGB(255, 0, 0, 0))),
-                          ],
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: const BoxDecoration(color: Color(0xFFC5BD4F), shape: BoxShape.circle),
+                          child: const Center(child: Icon(Icons.chevron_right, color: Colors.black, size: 20)),
                         ),
-                      ),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFC5BD4F),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.chevron_right,
-                              color: Colors.black, size: 20),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -335,6 +314,7 @@ class _ProfileSection extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _PlaceholderIllustration extends StatelessWidget {
   const _PlaceholderIllustration();
 

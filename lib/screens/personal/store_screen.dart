@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../data/mock_data.dart';
 import '../../models/gecko.dart';
+import 'subpantallas/favoritos_screen.dart';
+import 'subpantallas/producto_screen.dart';
+import 'main_shell.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -33,17 +36,40 @@ class _StoreScreenState extends State<StoreScreen> {
               padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
               child: Row(
                 children: [
-                  // Corazón
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFA0BC4D),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.favorite_border,
-                          color: Color.fromARGB(255, 0, 0, 0), size: 20),
+                  // Corazón -> abrir Favoritos
+                  GestureDetector(
+                    onTap: () {
+                      try {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritosScreen()));
+                      } catch (err, st) {
+                        // fallback: show error dialog instead of crashing
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Error'),
+                            content: Text('No se pudo abrir Favoritos: $err'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cerrar')),
+                            ],
+                          ),
+                        );
+                        // ignore: avoid_print
+                        print(err);
+                        // ignore: avoid_print
+                        print(st);
+                      }
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFA0BC4D),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.favorite_border,
+                            color: Color.fromARGB(255, 0, 0, 0), size: 20),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -84,17 +110,20 @@ class _StoreScreenState extends State<StoreScreen> {
                   ),
                   const SizedBox(width: 12),
                   // Avatar
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFA0BC4D), width: 2),
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/icono_perfil.png',
-                        fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () => PersonalMainShell.globalKey.currentState?.openPerfil(),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFA0BC4D), width: 2),
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/icono_perfil.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
@@ -152,9 +181,28 @@ class _StoreScreenState extends State<StoreScreen> {
                   final item = _filtered[i];
                   return _StoreCard(
                     item: item,
-                    onFavTap: () => setState(() {
-                      item.isFavorite = !item.isFavorite;
-                    }),
+                    onFavTap: () {
+                      try {
+                        setState(() {
+                          item.isFavorite = !item.isFavorite;
+                        });
+                        MockData.storeNotifier.value = MockData.storeNotifier.value + 1;
+                      } catch (err, st) {
+                        // show error and avoid crash
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Error'),
+                            content: Text('No se pudo actualizar favorito: $err'),
+                            actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cerrar'))],
+                          ),
+                        );
+                        // ignore: avoid_print
+                        print(err);
+                        // ignore: avoid_print
+                        print(st);
+                      }
+                    },
                   );
                 },
               ),
@@ -183,13 +231,28 @@ class _StoreCard extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: const Color(0xFFFBE3CF),
-            child: const Center(
-              child: Icon(Icons.image,
-                  size: 48, color: Color(0xFFFBF4EA)),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProductoScreen(
+                    item: item,
+                    imagePath: 'assets/images/img_tienda.JPG',
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFBE3CF),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/img_tienda.JPG'),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
           Positioned(

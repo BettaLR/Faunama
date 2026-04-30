@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'personal/main_shell.dart';
+import 'profesional/main_shell.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -132,7 +134,16 @@ class TipoCuentaScreen extends StatelessWidget {
                 icono: Icons.person,
                 color: AppColors.orange,
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, '/personal');
+                  try {
+                    Navigator.pushReplacementNamed(context, '/personal');
+                  } catch (err, st) {
+                    // fallback and show error
+                    // ignore: avoid_print
+                    print('Navigation error to /personal: $err');
+                    // ignore: avoid_print
+                    print(st);
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => PersonalMainShell(key: PersonalMainShell.globalKey)));
+                  }
                 },
               ),
               const SizedBox(height: 20),
@@ -143,7 +154,15 @@ class TipoCuentaScreen extends StatelessWidget {
                 icono: Icons.business,
                 color: AppColors.green,
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, '/profesional');
+                  try {
+                    Navigator.pushReplacementNamed(context, '/profesional');
+                  } catch (err, st) {
+                    // ignore: avoid_print
+                    print('Navigation error to /profesional: $err');
+                    // ignore: avoid_print
+                    print(st);
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ProfesionalMainShell()));
+                  }
                 },
               ),
             ],

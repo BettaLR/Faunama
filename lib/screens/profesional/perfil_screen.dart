@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../personal/subpantallas/invitacion_screen.dart';
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
@@ -128,28 +129,21 @@ class PerfilScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: _ProfileSection(
                 title: 'Invitar familiar',
-                trailing: Container(
+                trailing: GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitacionScreen())),
+                  child: Container(
                     width: 40,
                     height: 30,
-                    decoration: BoxDecoration(
-                        color: const Color(0xFFE1677D),
-                        borderRadius: BorderRadius.circular(15)),
-                    child: const Icon(Icons.add,
-                        size: 20, color: Color.fromARGB(255, 0, 0, 0)),
+                    decoration: BoxDecoration(color: const Color(0xFFE1677D), borderRadius: BorderRadius.circular(15)),
+                    child: const Icon(Icons.add, size: 20, color: Color.fromARGB(255, 0, 0, 0)),
                   ),
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFBE3CF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Image(
-                      image: AssetImage('assets/images/invitar_familiar.png'),
-                      fit: BoxFit.contain,
-                      width: 350,
-                      height: 300,
-                    ),
+                ),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitacionScreen())),
+                  child: Container(
+                    height: 150,
+                    decoration: BoxDecoration(color: const Color(0xFFFBE3CF), borderRadius: BorderRadius.circular(12)),
+                    child: const Center(child: Image(image: AssetImage('assets/images/invitar_familiar.png'), fit: BoxFit.contain, width: 350, height: 300)),
                   ),
                 ),
               ),
@@ -335,6 +329,7 @@ class _ProfileSection extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _PlaceholderIllustration extends StatelessWidget {
   const _PlaceholderIllustration();
 

@@ -4,6 +4,7 @@ import '../../theme/app_theme.dart';
 import '../../models/gecko.dart';
 import '../../data/mock_data.dart';
 import '../../widgets/common_widgets.dart';
+import 'subpantallas/blog_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedDay = DateTime.now();
   }
 
+  // ignore: unused_element
   List<GeckoEvent> get _eventsForSelected {
     if (_selectedDay == null) return [];
     return MockData.events.where((e) =>
@@ -95,7 +97,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: TipCard(
                   title: 'Cuida mejor, conoce más',
                   subtitle: '¿Sabías esto sobre tu mascota?',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BlogScreen(),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -250,24 +259,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, i) {
-                  final event = _upcomingEvents[i];
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                    child: EventRow(
-                      date: event.date,
-                      title: event.title,
-                      type: event.type,
-                      time: event.time,
-                    ),
-                  );
-                },
-                childCount: _upcomingEvents.length,
+            if (_upcomingEvents.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: Text(
+                    'Aun no hay eventos registrados',
+                    style: const TextStyle(fontSize: 13, color: Colors.black),
+                  ),
+                ),
+              )
+            else
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, i) {
+                    final event = _upcomingEvents[i];
+                    return Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      child: EventRow(
+                        event: event,
+                        onToggleCompleted: (e) {
+                          setState(() {});
+                        },
+                        onDelete: (e) async {
+                          await MockData.removeEvent(e);
+                          setState(() {});
+                        },
+                      ),
+                    );
+                  },
+                  childCount: _upcomingEvents.length,
+                ),
               ),
-            ),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
@@ -290,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const _AddEventSheet(),
-    );
+    ).then((_) => setState(() {}));
   }
 }
 
@@ -534,8 +558,10 @@ class _AddEventSheet extends StatefulWidget {
 
 class _AddEventSheetState extends State<_AddEventSheet> {
   final _titleController = TextEditingController();
-  String _type = 'checkup';
+  String _type = 'salud';
   DateTime _selectedDate = DateTime.now();
+  TimeOfDay _selectedTime = TimeOfDay.now();
+  final _otherController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -581,23 +607,32 @@ class _AddEventSheetState extends State<_AddEventSheet> {
           Wrap(
             spacing: 8,
             children: [
+                _GenderChip(
+                  label: 'Evento',
+                  value: 'salud',
+                  selected: _type == 'salud',
+                  onTap: () => setState(() => _type = 'salud')),
+                _GenderChip(
+                  label: 'Recordatorio',
+                  value: 'rutina',
+                  selected: _type == 'rutina',
+                  onTap: () => setState(() => _type = 'rutina')),
               _GenderChip(
-                  label: 'Vacuna',
-                  value: 'vaccine',
-                  selected: _type == 'vaccine',
-                  onTap: () => setState(() => _type = 'vaccine')),
-              _GenderChip(
-                  label: 'Revisión',
-                  value: 'checkup',
-                  selected: _type == 'checkup',
-                  onTap: () => setState(() => _type = 'checkup')),
-              _GenderChip(
-                  label: 'Alimento',
-                  value: 'food',
-                  selected: _type == 'food',
-                  onTap: () => setState(() => _type = 'food')),
+                  label: 'Otro',
+                  value: 'otro',
+                  selected: _type == 'otro',
+                  onTap: () => setState(() => _type = 'otro')),
             ],
           ),
+          if (_type == 'otro') ...[
+            const SizedBox(height: 8),
+            TextField(
+              controller: _otherController,
+              decoration: const InputDecoration(
+                hintText: 'Describe el tipo (ej: vacuna casera)',
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           GestureDetector(
             onTap: () async {
@@ -639,11 +674,63 @@ class _AddEventSheetState extends State<_AddEventSheet> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () async {
+              final picked = await showTimePicker(
+                context: context,
+                initialTime: _selectedTime,
+              );
+              if (picked != null) setState(() => _selectedTime = picked);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.cream,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border, width: 0.5),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time, size: 16, color: AppColors.green),
+                  const SizedBox(width: 10),
+                  Text('${_selectedTime.format(context)}', style: const TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+                onPressed: () async {
+                  try {
+                    final id = DateTime.now().millisecondsSinceEpoch.toString();
+                    final typeValue = _type == 'otro' && _otherController.text.isNotEmpty
+                        ? _otherController.text
+                        : _type;
+                    final timeStr = _selectedTime.format(context);
+                    final ge = GeckoEvent(
+                      id: id,
+                      geckoId: '',
+                      date: DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day),
+                      title: _titleController.text.isNotEmpty ? _titleController.text : 'Evento',
+                      type: typeValue,
+                      time: timeStr,
+                    );
+                    // ignore: avoid_print
+                    print('Adding event (prof): ${ge.toJson()}');
+                    await MockData.addEvent(ge);
+                    // ignore: avoid_print
+                    print('Event added successfully (prof)');
+                  } catch (e, st) {
+                    // ignore: avoid_print
+                    print('Error saving event (prof): $e');
+                    // ignore: avoid_print
+                    print(st);
+                  }
+                  Navigator.pop(context);
+                },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.green,
                 foregroundColor: Colors.white,

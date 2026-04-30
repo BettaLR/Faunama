@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../models/gecko.dart';
+import '../data/mock_data.dart';
 
 // ─── Tip card verde del home ("Cuida mejor, conoce más") ───
 class TipCard extends StatelessWidget {
@@ -112,7 +115,9 @@ class GeckoCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   image: imageUrl != null
                       ? DecorationImage(
-                          image: NetworkImage(imageUrl!),
+                          image: imageUrl!.toLowerCase().startsWith('http')
+                              ? NetworkImage(imageUrl!)
+                              : FileImage(File(imageUrl!)) as ImageProvider,
                           fit: BoxFit.cover,
                         )
                       : null,
@@ -173,30 +178,41 @@ class GeckoCard extends StatelessWidget {
 }
 
 // ─── Evento del calendario en el home ───
-class EventRow extends StatelessWidget {
-  final DateTime date;
-  final String title;
-  final String type;
-  final String? time;
-  final bool isCompleted;
+class EventRow extends StatefulWidget {
+  final GeckoEvent event;
+  final void Function(GeckoEvent)? onToggleCompleted;
+  final void Function(GeckoEvent)? onDelete;
 
   const EventRow({
     super.key,
-    required this.date,
-    required this.title,
-    required this.type,
-    this.time,
-    this.isCompleted = false,
+    required this.event,
+    this.onToggleCompleted,
+    this.onDelete,
   });
 
+  @override
+  State<EventRow> createState() => _EventRowState();
+}
+
+class _EventRowState extends State<EventRow> {
+  bool _showDelete = false;
+
+  void _toggleDelete() => setState(() => _showDelete = !_showDelete);
+
   Color get _typeColor {
-    switch (type) {
+    switch (widget.event.type) {
+      // accept both Spanish and English-like types
+      case 'salud':
       case 'vaccine':
+        return const Color(0xFFC53D3D);
+      case 'rutina':
       case 'checkup':
-        return const Color(0xFFFF994D); // Eventos importantes
+        return const Color(0xFFFF994D);
       case 'food':
+        return const Color(0xFFCB8C2A);
+      case 'otro':
       default:
-        return const Color(0xFFC53D3D); // Recordatorios
+        return const Color(0xFFE1677D);
     }
   }
 
@@ -210,105 +226,155 @@ class EventRow extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Container(
-          margin: const EdgeInsets.only(bottom: 10, left: 45),
-          padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFBE3CF),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border, width: 0.5),
-          ),
-          child: Row(
-            children: [
-              // Barra de color tipo
-              Container(
-                width: 15,
-                height: 52,
+        // Row layout: main card and delete button. Use AnimatedContainer for safe shifting.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: EdgeInsets.only(bottom: 10, left: 45, right: _showDelete ? 60 : 0),
+                padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
                 decoration: BoxDecoration(
-                  color: _typeColor,
-                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0xFFFBE3CF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border, width: 0.5),
+                ),
+                child: GestureDetector(
+                  onTap: _toggleDelete,
+                  child: Row(
+                    children: [
+                      // Barra de color tipo
+                      Container(
+                        width: 15,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: _typeColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Título y fecha
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.event.title,
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textDark),
+                            ),
+                            Text(
+                              '${widget.event.date.day.toString().padLeft(2, '0')} ${months[widget.event.date.month]}',
+                              style: const TextStyle(
+                                  fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // Línea vertical junto a la hora
+                      Container(
+                        width: 2,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(1),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Hora
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _typeColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              widget.event.time ?? '',
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
-              // Título y fecha
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textDark),
-                    ),
-                    Text(
-                      '${date.day.toString().padLeft(2, '0')} ${months[date.month]}',
-                      style: const TextStyle(
-                          fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              // Línea vertical junto a la hora
-              Container(
-                width: 2,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Hora
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF994D),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      time ?? '',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+            // (removed inline delete button; using positioned delete button on the right)
+          ],
         ),
         // Indicador completado fuera del recuadro, centrado a la izquierda
         Positioned(
           left: 0,
           top: 28,
-          child: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: isCompleted ? Colors.white : const Color(0xFFC5BD4F),
-              border: Border.all(
-                color: isCompleted ? const Color(0xFFE1677D) : const Color(0xFFC5BD4F),
-                width: 2,
+          child: GestureDetector(
+            onTap: () async {
+              // toggle in model, then call optional callback to let parent update UI
+              await MockData.toggleCompleted(widget.event);
+              if (widget.onToggleCompleted != null) widget.onToggleCompleted!(widget.event);
+            },
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: widget.event.completed ? const Color(0xFFE1677D) : const Color(0xFFC5BD4F),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: widget.event.completed ? const Color(0xFFE1677D) : const Color(0xFFC5BD4F),
+                  width: 0,
+                ),
               ),
-              shape: BoxShape.circle,
+              child: widget.event.completed
+                  ? const Icon(Icons.check, size: 16, color: Colors.black)
+                  : null,
             ),
-            child: isCompleted
-                ? const Icon(Icons.check,
-                    size: 14, color: Color(0xFFE1677D))
-                : null,
+          ),
+        ),
+
+        // Delete button (appears when _showDelete). Use IgnorePointer so it's not hit-testable when hidden.
+        Positioned(
+          right: 0,
+          top: 8,
+          bottom: 8,
+          child: IgnorePointer(
+            ignoring: !_showDelete,
+            child: AnimatedOpacity(
+              opacity: _showDelete ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: SizedBox(
+                width: 56,
+                child: Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFA0BC4D),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
+                      minimumSize: const Size(48, 48),
+                    ),
+                    onPressed: () {
+                      if (widget.onDelete != null) widget.onDelete!(widget.event);
+                    },
+                    child: const Icon(Icons.delete, color: Colors.black),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 
+  // ignore: unused_element
   String _weekdayName(DateTime d) {
     const days = [
       'Lunes', 'Martes', 'Miércoles', 'Jueves',
