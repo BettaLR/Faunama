@@ -183,6 +183,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SliverToBoxAdapter(
               child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                child: Text(
+                  'Aqui podrás encontrar a tus bichitos',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: SizedBox(
                   height: 200,
@@ -237,18 +249,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                         ),
-                ),
-              ),
-            ),
-
-            // ── Descripción ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
-                child: Text(
-                  'Aquí podrás encontrar a tus bichitos',
-                  style: const TextStyle(
-                      fontSize: 12, color: Colors.black),
                 ),
               ),
             ),
