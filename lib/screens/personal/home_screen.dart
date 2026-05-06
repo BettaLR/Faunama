@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () => _showAddGeckoSheet(context),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: AppColors.white,
+                                      color: const Color(0xFFFBE3CF),
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
                                           color: AppColors.border, width: 0.5),
@@ -205,8 +205,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: const Center(
                                       child: Text('Añadir mascota',
                                           style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600)),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black)),
                                     ),
                                   ),
                                 ),

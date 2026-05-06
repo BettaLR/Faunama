@@ -27,47 +27,54 @@ class TipCard extends StatelessWidget {
           color: const Color(0xFFFBE3CF),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Row(
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            // Ícono gecko placeholder
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFBE3CF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              alignment: Alignment.bottomCenter,
-              child: Image.asset(
-                'assets/images/gecko_blog.png',
+            Positioned(
+              left: 7,
+              bottom: -15,
+              child: SizedBox(
+                width: 72,
+                height: 72,
+                child: Image.asset(
+                  'assets/images/gecko_blog.png',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
                 children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark)),
-                  const SizedBox(height: 2),
-                  Text(subtitle,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textMedium)),
+                  const SizedBox(width: 72),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textDark)),
+                        const SizedBox(height: 2),
+                        Text(subtitle,
+                            style: const TextStyle(
+                                fontSize: 12, color: AppColors.textMedium)),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFC5BD4F),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.chevron_right,
+                        color: Colors.black, size: 20),
+                  ),
                 ],
               ),
-            ),
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0xFFC5BD4F),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.chevron_right,
-                  color: Colors.black, size: 20),
             ),
           ],
         ),
