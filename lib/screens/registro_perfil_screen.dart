@@ -61,7 +61,7 @@ class _RegistroPerfilScreenState extends State<RegistroPerfilScreen> {
 
               // Option buttons
               SizedBox(
-                width: 320,
+                width: 200,
                 child: Column(
                   children: [
                     ElevatedButton(
@@ -91,7 +91,7 @@ class _RegistroPerfilScreenState extends State<RegistroPerfilScreen> {
 
               // Regresar button
               SizedBox(
-                width: 320,
+                width: 200,
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
@@ -121,7 +121,7 @@ class _RegistroPerfilScreenState extends State<RegistroPerfilScreen> {
 
               // Siguiente button
               SizedBox(
-                width: 320,
+                width: 200,
                 child: ElevatedButton(
                   onPressed: () {
                     if (_selected == 'Empresarial') {

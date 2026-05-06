@@ -146,7 +146,7 @@ class PerfilScreen extends StatelessWidget {
                     height: 150,
                     decoration: BoxDecoration(color: const Color(0xFFFBE3CF), borderRadius: BorderRadius.circular(12)),
                     child: const Center(
-                      child: Image(image: AssetImage('assets/images/invitar_familiar.png'), fit: BoxFit.contain, width: 350, height: 300),
+                      child: Image(image: AssetImage('assets/images/invitar_familiar.png'), fit: BoxFit.contain, width: 200, height: 300),
                     ),
                   ),
                 ),

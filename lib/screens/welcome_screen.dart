@@ -84,7 +84,7 @@ class WelcomeScreen extends StatelessWidget {
                   width: double.infinity,
                   child: Center(
                     child: SizedBox(
-                      width: 320,
+                      width: 200,
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
@@ -143,7 +143,7 @@ class WelcomeScreen extends StatelessWidget {
                   width: double.infinity,
                   child: Center(
                     child: SizedBox(
-                      width: 320,
+                      width: 200,
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
