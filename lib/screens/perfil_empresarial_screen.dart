@@ -36,7 +36,9 @@ class PerfilEmpresarialScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 70),
+              SizedBox(
+               height: MediaQuery.of(context).size.height * 0.10, // 20% de la altura de la pantalla
+              ),
 
               // Title
               const Text(
@@ -57,7 +59,9 @@ class PerfilEmpresarialScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 95),
+              SizedBox(
+               height: MediaQuery.of(context).size.height * 0.10, // 20% de la altura de la pantalla
+              ),
 
               // Regresar button
               Padding(

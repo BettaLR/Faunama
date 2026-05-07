@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../data/mock_data.dart';
 import '../../models/gecko.dart';
+import '../personal/subpantallas/favoritos_screen.dart';
+import '../personal/subpantallas/producto_screen.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -33,17 +35,22 @@ class _StoreScreenState extends State<StoreScreen> {
               padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
               child: Row(
                 children: [
-                  // Corazón
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFA0BC4D),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.favorite_border,
-                          color: Color.fromARGB(255, 0, 0, 0), size: 20),
+                  // Corazón -> abrir Favoritos
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritosScreen()));
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFA0BC4D),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.favorite_border,
+                            color: Color.fromARGB(255, 0, 0, 0), size: 20),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -51,8 +58,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFA0BC4D),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFA0BC4D),
                       shape: BoxShape.circle,
                     ),
                     child: const Center(
@@ -73,8 +80,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFA0BC4D),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFA0BC4D),
                       shape: BoxShape.circle,
                     ),
                     child: const Center(
@@ -101,37 +108,9 @@ class _StoreScreenState extends State<StoreScreen> {
                 ],
               ),
             ),
-            // Subtítulo con botón de añadir
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('¡Vende ejemplares o busca un nuevo amigo!',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark)),
-                  GestureDetector(
-                    onTap: () {
-                      // Acción para añadir nueva categoría
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE1677D),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(Icons.add, color: Colors.black, size: 20),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             // Filtros
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -180,9 +159,12 @@ class _StoreScreenState extends State<StoreScreen> {
                   final item = _filtered[i];
                   return _StoreCard(
                     item: item,
-                    onFavTap: () => setState(() {
-                      item.isFavorite = !item.isFavorite;
-                    }),
+                    onFavTap: () {
+                      setState(() {
+                        item.isFavorite = !item.isFavorite;
+                      });
+                      MockData.storeNotifier.value = MockData.storeNotifier.value + 1;
+                    },
                   );
                 },
               ),
@@ -211,13 +193,28 @@ class _StoreCard extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: const Color(0xFFFBE3CF),
-            child: const Center(
-              child: Icon(Icons.image,
-                  size: 48, color: Color(0xFFFBF4EA)),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProductoScreen(
+                    item: item,
+                    imagePath: 'assets/images/img_tienda.JPG',
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFBE3CF),
+                image: DecorationImage(
+                  image: AssetImage('assets/images/img_tienda.JPG'),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
           Positioned(

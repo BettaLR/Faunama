@@ -17,7 +17,7 @@ class WelcomeScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 75, vertical: 70),
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -31,7 +31,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 0),
 
                 // Large gecko image aligned to left and touching the edge
                 Container(
@@ -41,13 +41,13 @@ class WelcomeScreen extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: Image.asset(
                       'assets/images/gecko_registro_2.png',
-                      width: MediaQuery.of(context).size.width * 0.58,
+                      width: MediaQuery.of(context).size.width * 0.75,
                       fit: BoxFit.contain,
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 30),
 
                 // Title centered
                 const Text(
@@ -65,7 +65,7 @@ class WelcomeScreen extends StatelessWidget {
                 // Description: centered block but text left-aligned
                 Center(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 360),
+                    constraints: BoxConstraints(maxWidth: 280),
                     child: const Text(
                       'Descubre mejores formas para tratar con tu mascota y tener una mejor calidad de vida',
                       style: TextStyle(

@@ -18,17 +18,32 @@ class PersonalMainShell extends StatefulWidget {
 class _PersonalMainShellState extends State<PersonalMainShell> {
   int _currentIndex = 2;
   int? _registroInitialIndex;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void openRegistro({int? geckoIndex}) {
     setState(() {
       _currentIndex = 3;
       _registroInitialIndex = geckoIndex;
+      _pageController.jumpToPage(3);
     });
   }
 
   void openPerfil() {
     setState(() {
       _currentIndex = 4;
+      _pageController.jumpToPage(4);
     });
   }
 
@@ -43,8 +58,13 @@ class _PersonalMainShellState extends State<PersonalMainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         children: _screens,
       ),
       bottomNavigationBar: Container(
@@ -80,35 +100,45 @@ class _PersonalMainShellState extends State<PersonalMainShell> {
                       label: 'Tienda',
                       index: 0,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/calendario_ss.png',
                       label: 'Calendario',
                       index: 1,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/inicio_ss.png',
                       label: 'Inicio',
                       index: 2,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/registros_ss.png',
                       label: 'Registro',
                       index: 3,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/perfil_ss.png',
                       label: 'Perfil',
                       index: 4,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                   ],
                 ),

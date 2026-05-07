@@ -53,7 +53,7 @@ class _EmpresarialSeleccionScreenState extends State<EmpresarialSeleccionScreen>
       backgroundColor: bg,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 70),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

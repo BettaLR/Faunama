@@ -25,12 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
-    _loadData();
-  }
-
-  void _loadData() async {
-    await MockData.init();
-    setState(() {});
   }
 
   // ignore: unused_element
@@ -155,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Tip card ──
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                padding: const EdgeInsets.fromLTRB(15, 16, 15, 0),
                 child: TipCard(
                   title: 'Cuida mejor, conoce más',
                   subtitle: '¿Sabías esto sobre tu mascota?',

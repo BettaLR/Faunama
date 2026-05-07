@@ -6,11 +6,14 @@ import '../models/gecko.dart';
 class MockData {
   static const _kGeckosKey = 'mock_geckos_v1';
   static const _kEventsKey = 'mock_events_v1';
+  static const _kPatientsKey = 'mock_patients_v1';
   static List<Gecko> geckos = [];
+  static List<Patient> patients = [];
 
   static final List<GeckoEvent> events = [];
   // Notifier to let UI rebuild when events change
   static final ValueNotifier<int> eventsNotifier = ValueNotifier<int>(0);
+  static final ValueNotifier<int> patientsNotifier = ValueNotifier<int>(0);
 
   static Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,10 +30,33 @@ class MockData {
       geckos = [];
     }
 
-    // remove any previously stored events so app starts empty
-    await prefs.remove(_kEventsKey);
-    // ensure in-memory list is empty
-    events.clear();
+    // load patients
+    final rawPatients = prefs.getString(_kPatientsKey);
+    if (rawPatients != null) {
+      try {
+        final list = json.decode(rawPatients) as List<dynamic>;
+        patients = list.map((e) => Patient.fromJson(e as Map<String, dynamic>)).toList();
+      } catch (_) {
+        patients = [];
+      }
+    } else {
+      patients = [];
+    }
+
+    // load events
+    final rawEvents = prefs.getString(_kEventsKey);
+    if (rawEvents != null) {
+      try {
+        final list = json.decode(rawEvents) as List<dynamic>;
+        events.clear();
+        events.addAll(list.map((e) => GeckoEvent.fromJson(e as Map<String, dynamic>)).toList());
+        eventsNotifier.value = eventsNotifier.value + 1;
+      } catch (_) {
+        events.clear();
+      }
+    } else {
+      events.clear();
+    }
   }
 
   static Future<void> save() async {
@@ -40,6 +66,8 @@ class MockData {
       await prefs.setString(_kGeckosKey, rawGeckos);
       final rawEvents = json.encode(events.map((e) => e.toJson()).toList());
       await prefs.setString(_kEventsKey, rawEvents);
+      final rawPatients = json.encode(patients.map((p) => p.toJson()).toList());
+      await prefs.setString(_kPatientsKey, rawPatients);
     } catch (e, st) {
       // ignore: avoid_print
       print('MockData.save error: $e');
@@ -51,6 +79,48 @@ class MockData {
   static Future<void> addGecko(Gecko g) async {
     geckos.add(g);
     await save();
+  }
+
+  static Future<void> addPatient(Patient p) async {
+    patients.add(p);
+    try {
+      await save();
+      patientsNotifier.value = patientsNotifier.value + 1;
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('MockData.addPatient error: $e');
+      // ignore: avoid_print
+      print(st);
+    }
+  }
+
+  static Future<void> updatePatient(Patient p) async {
+    final idx = patients.indexWhere((x) => x.id == p.id);
+    if (idx != -1) {
+      patients[idx] = p;
+      try {
+        await save();
+        patientsNotifier.value = patientsNotifier.value + 1;
+      } catch (e, st) {
+        // ignore: avoid_print
+        print('MockData.updatePatient error: $e');
+        // ignore: avoid_print
+        print(st);
+      }
+    }
+  }
+
+  static Future<void> removePatient(String id) async {
+    patients.removeWhere((x) => x.id == id);
+    try {
+      await save();
+      patientsNotifier.value = patientsNotifier.value + 1;
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('MockData.removePatient error: $e');
+      // ignore: avoid_print
+      print(st);
+    }
   }
 
   static Future<void> addEvent(GeckoEvent e) async {

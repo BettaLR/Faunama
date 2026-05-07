@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../theme/app_theme.dart';
 import '../../models/gecko.dart';
 import '../../data/mock_data.dart';
@@ -23,21 +25,34 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedDay = DateTime.now();
   }
 
-  // ignore: unused_element
-  List<GeckoEvent> get _eventsForSelected {
-    if (_selectedDay == null) return [];
-    return MockData.events.where((e) =>
-        e.date.year == _selectedDay!.year &&
-        e.date.month == _selectedDay!.month &&
-        e.date.day == _selectedDay!.day).toList();
-  }
-
   List<GeckoEvent> get _upcomingEvents {
     final now = DateTime.now();
     return MockData.events
         .where((e) => e.date.isAfter(now.subtract(const Duration(days: 1))))
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  GeckoEvent? get _nextEvent {
+    if (_upcomingEvents.isEmpty) return null;
+    return _upcomingEvents.first;
+  }
+
+  String _formatEventDateTime(DateTime dateTime) {
+    final months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    final weekdays = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    
+    final dayName = weekdays[dateTime.weekday % 7];
+    final day = dateTime.day;
+    final month = months[dateTime.month - 1];
+    return '$dayName $day de $month';
+  }
+
+  String _formatEventTime(DateTime dateTime) {
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   @override
@@ -60,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row(
                             children: [
                               const Text(
-                                'Hola, Cass',
+                                'Hola "Wild Care"',
                                 style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w700,
@@ -77,10 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    // Íconos de cabecera
                     Row(
                       children: [
-                        _HeaderIcon(icon: Icons.help_outline, onTap: () {}),
+                        _HeaderIcon(icon: Icons.notifications_none, onTap: () {}),
                         const SizedBox(width: 8),
                         _AvatarIcon(),
                       ],
@@ -93,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // ── Tip card ──
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                padding: const EdgeInsets.fromLTRB(15, 16, 15, 0),
                 child: TipCard(
                   title: 'Cuida mejor, conoce más',
                   subtitle: '¿Sabías esto sobre tu mascota?',
@@ -105,56 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                ),
-              ),
-            ),
-
-            // ── Mis geckos ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
-                child: SectionHeader(
-                  title: 'Mis geckos',
-                  trailing: GreenFab(onTap: () => _showAddGeckoSheet(context)),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: SizedBox(
-                  height: 200,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: MockData.geckos.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (context, i) {
-                      final gecko = MockData.geckos[i];
-                      return SizedBox(
-                        width: 150,
-                        child: GeckoCard(
-                          name: gecko.name,
-                          age: gecko.age,
-                          gender: gecko.gender,
-                          imageUrl: gecko.imageUrl,
-                          onTap: () {},
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-
-            // ── Descripción ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
-                child: Text(
-                  'Aquí podrás encontrar a tus bichitos',
-                  style: const TextStyle(
-                      fontSize: 12, color: Colors.black),
                 ),
               ),
             ),
@@ -239,59 +203,134 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // ── Próximos eventos ──
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
-                child: SectionHeader(
-                  title: 'Próximos eventos',
-                  trailing: GreenFab(onTap: () => _showAddEventSheet(context)),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 15, left: 20, right: 20),
-                child: Text(
-                  'Organiza tus momentos importantes',
-                  style: const TextStyle(
-                      fontSize: 12, color: Colors.black),
-                ),
-              ),
-            ),
-            if (_upcomingEvents.isEmpty)
+            // ── Próximo evento ──
+            if (_nextEvent != null)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                  child: Text(
-                    'Aun no hay eventos registrados',
-                    style: const TextStyle(fontSize: 13, color: Colors.black),
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        _formatEventDateTime(_nextEvent!.date),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      Text(
+                        _formatEventTime(_nextEvent!.date),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               )
             else
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, i) {
-                    final event = _upcomingEvents[i];
-                    return Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                      child: EventRow(
-                        event: event,
-                        onToggleCompleted: (e) {
-                          setState(() {});
-                        },
-                        onDelete: (e) async {
-                          await MockData.removeEvent(e);
-                          setState(() {});
-                        },
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
+                  child: Center(
+                    child: Text(
+                      'No hay eventos registrados',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: AppColors.textLight,
+                        fontWeight: FontWeight.w500,
                       ),
-                    );
-                  },
-                  childCount: _upcomingEvents.length,
+                    ),
+                  ),
                 ),
               ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(100, 16, 100, 0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => _showAddEventSheet(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFBE3CF),
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: AppColors.border, width: 0.5),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Añadir evento',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Pacientes ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
+                child: SectionHeader(
+                  title: 'Pacientes',
+                  trailing: GreenFab(onTap: () => _showAddPatientSheet(context)),
+                ),
+              ),
+            ),
+            ValueListenableBuilder<int>(
+              valueListenable: MockData.patientsNotifier,
+              builder: (context, _, __) {
+                if (MockData.patients.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(40.0),
+                      child: Center(
+                        child: Text(
+                          'No hay pacientes registrados.',
+                          style: TextStyle(color: AppColors.textLight),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, i) {
+                        // Show only the 3 most recent patients
+                        final recentPatients = MockData.patients.reversed.toList();
+                        return PatientCard(
+                          patient: recentPatients[i],
+                          onEdit: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => _AddPatientSheet(patient: recentPatients[i]),
+                            );
+                          },
+                        );
+                      },
+                      childCount: MockData.patients.length > 3 ? 3 : MockData.patients.length,
+                    ),
+                  ),
+                );
+              },
+            ),
+
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
@@ -299,12 +338,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showAddGeckoSheet(BuildContext context) {
+  void _showAddPatientSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _AddGeckoSheet(),
+      builder: (_) => const _AddPatientSheet(),
     );
   }
 
@@ -363,21 +402,48 @@ class _AvatarIcon extends StatelessWidget {
   }
 }
 
-// ─── Bottom sheet: agregar gecko ───
-class _AddGeckoSheet extends StatefulWidget {
-  const _AddGeckoSheet();
+// ─── Bottom sheet: agregar paciente ───
+class _AddPatientSheet extends StatefulWidget {
+  final Patient? patient;
+  const _AddPatientSheet({this.patient});
 
   @override
-  State<_AddGeckoSheet> createState() => _AddGeckoSheetState();
+  State<_AddPatientSheet> createState() => _AddPatientSheetState();
 }
 
-class _AddGeckoSheetState extends State<_AddGeckoSheet> {
-  final _nameController = TextEditingController();
-  final _morphController = TextEditingController();
-  String _gender = 'unknown';
+class _AddPatientSheetState extends State<_AddPatientSheet> {
+  late final TextEditingController _ownerController;
+  late final TextEditingController _petNameController;
+  late final TextEditingController _symptomsController;
+  late final TextEditingController _notesController;
+  
+  late String _species;
+  late String _gender;
+  late String _maturity;
+  late String _morph;
+  late String _condition;
+  String? _imagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _ownerController = TextEditingController(text: widget.patient?.ownerName);
+    _petNameController = TextEditingController(text: widget.patient?.petName);
+    _symptomsController = TextEditingController(text: widget.patient?.symptoms);
+    _notesController = TextEditingController(text: widget.patient?.notes);
+    
+    _species = widget.patient?.species ?? 'Gecko';
+    _gender = widget.patient?.gender ?? 'unknown';
+    _maturity = widget.patient?.maturity ?? 'Adulto';
+    _morph = widget.patient?.morph ?? 'Albino';
+    _condition = widget.patient?.condition ?? 'mild';
+    _imagePath = widget.patient?.imageUrl;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bool isEditing = widget.patient != null;
+
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.white,
@@ -389,73 +455,190 @@ class _AddGeckoSheetState extends State<_AddGeckoSheet> {
         top: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          const Text('Agregar gecko',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color.fromARGB(255, 0, 0, 0))),
-          const SizedBox(height: 20),
-          _SheetField(
-              controller: _nameController, label: 'Nombre', hint: 'Ej: Mondo'),
-          const SizedBox(height: 12),
-          _SheetField(
-              controller: _morphController,
-              label: 'Morph',
-              hint: 'Ej: Albino Tremper'),
-          const SizedBox(height: 12),
-          const Text('Género',
-              style: TextStyle(fontSize: 13, color: Colors.black)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _GenderChip(
-                  label: 'Macho',
-                  value: 'male',
-                  selected: _gender == 'male',
-                  onTap: () => setState(() => _gender = 'male')),
-              const SizedBox(width: 8),
-              _GenderChip(
-                  label: 'Hembra',
-                  value: 'female',
-                  selected: _gender == 'female',
-                  onTap: () => setState(() => _gender = 'female')),
-            ],
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              child: const Text('Guardar',
-                  style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 20),
+            Text(isEditing ? 'Editar Paciente' : 'Información General',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black)),
+            const SizedBox(height: 20),
+            
+            _SheetField(controller: _ownerController, label: 'Dueño*', hint: 'Escribir'),
+            const SizedBox(height: 12),
+            _SheetField(controller: _petNameController, label: 'Nombre de la mascota*', hint: 'Escribir'),
+            const SizedBox(height: 12),
+            
+            const Text('Especie*', style: TextStyle(fontSize: 13, color: Colors.black)),
+            const SizedBox(height: 6),
+            _DropdownField(
+              value: _species,
+              items: const ['Gecko', 'Serpiente', 'Ave', 'Otro'],
+              onChanged: (v) => setState(() => _species = v!),
             ),
-          ),
-        ],
+            
+            const SizedBox(height: 12),
+            const Text('Sexo', style: TextStyle(fontSize: 13, color: Colors.black)),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _GenderChipExtended(label: 'Macho', value: 'male', selected: _gender == 'male', onTap: () => setState(() => _gender = 'male'), icon: Icons.male),
+                _GenderChipExtended(label: 'Hembra', value: 'female', selected: _gender == 'female', onTap: () => setState(() => _gender = 'female'), icon: Icons.female),
+                _GenderChipExtended(label: 'Mixto', value: 'mixed', selected: _gender == 'mixed', onTap: () => setState(() => _gender = 'mixed'), icon: Icons.group),
+                _GenderChipExtended(label: 'Desconocido', value: 'unknown', selected: _gender == 'unknown', onTap: () => setState(() => _gender = 'unknown'), icon: Icons.help_outline),
+              ],
+            ),
+            
+            const SizedBox(height: 12),
+            const Text('Madurez*', style: TextStyle(fontSize: 13, color: Colors.black)),
+            const SizedBox(height: 6),
+            _DropdownField(
+              value: _maturity,
+              items: const ['Cría', 'Juvenil', 'Sub-adulto', 'Adulto'],
+              onChanged: (v) => setState(() => _maturity = v!),
+            ),
+            
+            const SizedBox(height: 12),
+            const Text('Fase*', style: TextStyle(fontSize: 13, color: Colors.black)),
+            const SizedBox(height: 6),
+            _DropdownField(
+              value: _morph,
+              items: const ['Albino', 'Tremper', 'Pied', 'Normal', 'Otro'],
+              onChanged: (v) => setState(() => _morph = v!),
+            ),
+            
+            const SizedBox(height: 12),
+            const Text('Condición*', style: TextStyle(fontSize: 13, color: Colors.black)),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _ConditionChip(label: 'Leve', value: 'mild', selected: _condition == 'mild', color: const Color(0xFFA0BC4D), onTap: () => setState(() => _condition = 'mild')),
+                _ConditionChip(label: 'Grave', value: 'severe', selected: _condition == 'severe', color: const Color(0xFFC53D3D), onTap: () => setState(() => _condition = 'severe')),
+                _ConditionChip(label: 'Crónico', value: 'chronic', selected: _condition == 'chronic', color: const Color(0xFFE1677D), onTap: () => setState(() => _condition = 'chronic')),
+                _ConditionChip(label: 'Agudo', value: 'acute', selected: _condition == 'acute', color: const Color(0xFFFF994D), onTap: () => setState(() => _condition = 'acute')),
+              ],
+            ),
+            
+            const SizedBox(height: 12),
+            _SheetField(controller: _symptomsController, label: 'Síntomas*', hint: 'Escribir', maxLines: 3),
+            
+            const SizedBox(height: 20),
+            const Text('Imagen*', style: TextStyle(fontSize: 13, color: Colors.black)),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () async {
+                final picker = ImagePicker();
+                final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+                if (file != null) setState(() => _imagePath = file.path);
+              },
+              child: Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.cream,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border, width: 0.5),
+                ),
+                child: _imagePath == null
+                    ? const Center(child: Icon(Icons.add_a_photo, size: 48, color: AppColors.textLight))
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: _imagePath!.startsWith('assets/') 
+                          ? Image.asset(_imagePath!, fit: BoxFit.cover)
+                          : Image.file(File(_imagePath!), fit: BoxFit.cover),
+                      ),
+              ),
+            ),
+            
+            const SizedBox(height: 12),
+            _SheetField(controller: _notesController, label: 'Notas', hint: 'Escribir', maxLines: 4),
+            
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                if (isEditing) ...[
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await MockData.removePatient(widget.patient!.id);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFC53D3D),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Eliminar',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_ownerController.text.isEmpty || _petNameController.text.isEmpty) return;
+                      
+                      final p = Patient(
+                        id: isEditing ? widget.patient!.id : DateTime.now().millisecondsSinceEpoch.toString(),
+                        ownerName: _ownerController.text.trim(),
+                        petName: _petNameController.text.trim(),
+                        species: _species,
+                        gender: _gender,
+                        maturity: _maturity,
+                        morph: _morph,
+                        condition: _condition,
+                        symptoms: _symptomsController.text.trim(),
+                        notes: _notesController.text.trim(),
+                        imageUrl: _imagePath,
+                        nextAppointment: widget.patient?.nextAppointment ?? DateTime.now().add(const Duration(days: 7)),
+                      );
+                      
+                      if (isEditing) {
+                        await MockData.updatePatient(p);
+                      } else {
+                        await MockData.addPatient(p);
+                      }
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: Text(isEditing ? 'Actualizar' : 'Guardar',
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -465,9 +648,10 @@ class _SheetField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String hint;
+  final int maxLines;
 
   const _SheetField(
-      {required this.controller, required this.label, required this.hint});
+      {required this.controller, required this.label, required this.hint, this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -479,10 +663,11 @@ class _SheetField extends StatelessWidget {
         const SizedBox(height: 6),
         TextField(
           controller: controller,
+          maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                const TextStyle(fontSize: 14, color: Colors.black),
+                const TextStyle(fontSize: 14, color: AppColors.textLight),
             filled: true,
             fillColor: AppColors.cream,
             contentPadding:
@@ -509,38 +694,108 @@ class _SheetField extends StatelessWidget {
   }
 }
 
-class _GenderChip extends StatelessWidget {
+class _DropdownField extends StatelessWidget {
+  final String value;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+
+  const _DropdownField({required this.value, required this.items, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: AppColors.cream,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border, width: 0.5),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          items: items.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 14)))).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+}
+
+class _GenderChipExtended extends StatelessWidget {
   final String label;
   final String value;
   final bool selected;
   final VoidCallback onTap;
+  final IconData icon;
 
-  const _GenderChip(
+  const _GenderChipExtended(
       {required this.label,
       required this.value,
       required this.selected,
-      required this.onTap});
+      required this.onTap,
+      required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 50,
+            height: 40,
+            decoration: BoxDecoration(
+              color: selected ? (value == 'male' ? const Color(0xFFA0BC4D) : value == 'female' ? const Color(0xFFE1677D) : value == 'mixed' ? const Color(0xFFC53D3D) : const Color(0xFFFF994D)) : AppColors.cream,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected ? Colors.transparent : AppColors.border,
+                width: 0.5,
+              ),
+            ),
+            child: Icon(icon, size: 24, color: selected ? Colors.black : Colors.black54),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConditionChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ConditionChip({required this.label, required this.value, required this.selected, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppColors.greenCard : AppColors.cream,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: selected ? AppColors.green : AppColors.border,
-            width: selected ? 1.5 : 0.5,
-          ),
+          color: selected ? color : AppColors.cream,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: selected ? Colors.transparent : AppColors.border, width: 0.5),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: selected ? AppColors.green : Colors.black,
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            color: selected ? Colors.black : Colors.black87,
           ),
         ),
       ),
@@ -607,20 +862,23 @@ class _AddEventSheetState extends State<_AddEventSheet> {
           Wrap(
             spacing: 8,
             children: [
-                _GenderChip(
+                _ConditionChip(
                   label: 'Evento',
                   value: 'salud',
                   selected: _type == 'salud',
+                  color: const Color(0xFFA0BC4D),
                   onTap: () => setState(() => _type = 'salud')),
-                _GenderChip(
+                _ConditionChip(
                   label: 'Recordatorio',
                   value: 'rutina',
                   selected: _type == 'rutina',
+                  color: const Color(0xFFA0BC4D),
                   onTap: () => setState(() => _type = 'rutina')),
-              _GenderChip(
+              _ConditionChip(
                   label: 'Otro',
                   value: 'otro',
                   selected: _type == 'otro',
+                  color: const Color(0xFFA0BC4D),
                   onTap: () => setState(() => _type = 'otro')),
             ],
           ),
@@ -713,21 +971,15 @@ class _AddEventSheetState extends State<_AddEventSheet> {
                     final ge = GeckoEvent(
                       id: id,
                       geckoId: '',
-                      date: DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day),
+                      date: DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _selectedTime.hour, _selectedTime.minute),
                       title: _titleController.text.isNotEmpty ? _titleController.text : 'Evento',
                       type: typeValue,
                       time: timeStr,
                     );
-                    // ignore: avoid_print
-                    print('Adding event (prof): ${ge.toJson()}');
                     await MockData.addEvent(ge);
-                    // ignore: avoid_print
-                    print('Event added successfully (prof)');
                   } catch (e, st) {
                     // ignore: avoid_print
                     print('Error saving event (prof): $e');
-                    // ignore: avoid_print
-                    print(st);
                   }
                   Navigator.pop(context);
                 },

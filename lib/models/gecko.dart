@@ -50,6 +50,66 @@ class Gecko {
       );
 }
 
+class Patient {
+  final String id;
+  final String ownerName;
+  final String petName;
+  final String species;
+  final String gender; // 'male' | 'female' | 'mixed' | 'unknown'
+  final String maturity;
+  final String morph; // 'fase'
+  final String condition; // 'mild' | 'severe' | 'chronic' | 'acute'
+  final String symptoms;
+  final String? imageUrl;
+  final String? notes;
+  final DateTime? nextAppointment;
+
+  const Patient({
+    required this.id,
+    required this.ownerName,
+    required this.petName,
+    required this.species,
+    required this.gender,
+    required this.maturity,
+    required this.morph,
+    required this.condition,
+    required this.symptoms,
+    this.imageUrl,
+    this.notes,
+    this.nextAppointment,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'ownerName': ownerName,
+        'petName': petName,
+        'species': species,
+        'gender': gender,
+        'maturity': maturity,
+        'morph': morph,
+        'condition': condition,
+        'symptoms': symptoms,
+        'imageUrl': imageUrl,
+        'notes': notes,
+        'nextAppointment': nextAppointment?.toIso8601String(),
+      };
+
+  factory Patient.fromJson(Map<String, dynamic> j) => Patient(
+        id: j['id'] as String,
+        ownerName: j['ownerName'] as String,
+        petName: j['petName'] as String,
+        species: j['species'] as String,
+        gender: j['gender'] as String,
+        maturity: j['maturity'] as String,
+        morph: j['morph'] as String,
+        condition: j['condition'] as String,
+        symptoms: j['symptoms'] as String,
+        imageUrl: j['imageUrl'] as String?,
+        notes: j['notes'] as String?,
+        nextAppointment: j['nextAppointment'] != null ? DateTime.parse(j['nextAppointment'] as String) : null,
+      );
+}
+
 class GeckoEvent {
   final String id;
   final String geckoId;

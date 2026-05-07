@@ -3,7 +3,7 @@ import '../../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'store_screen.dart';
 import 'agenda_screen.dart';
-import 'registro_screen.dart';
+import 'pacientes_screen.dart';
 import 'perfil_screen.dart';
 
 class ProfesionalMainShell extends StatefulWidget {
@@ -15,20 +15,38 @@ class ProfesionalMainShell extends StatefulWidget {
 
 class _ProfesionalMainShellState extends State<ProfesionalMainShell> {
   int _currentIndex = 2;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   final List<Widget> _screens = const [
     StoreScreen(),
     AgendaScreen(),
     HomeScreen(),
-    RegistroScreen(),
+    PacientesScreen(),
     PerfilScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         children: _screens,
       ),
       bottomNavigationBar: Container(
@@ -64,35 +82,45 @@ class _ProfesionalMainShellState extends State<ProfesionalMainShell> {
                       label: 'Tienda',
                       index: 0,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/calendario_ss.png',
                       label: 'Calendario',
                       index: 1,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/inicio_ss.png',
                       label: 'Inicio',
                       index: 2,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/registros_ss.png',
                       label: 'Pacientes',
                       index: 3,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                     _NavItem(
                       imagePath: 'assets/images/perfil_ss.png',
                       label: 'Perfil',
                       index: 4,
                       currentIndex: _currentIndex,
-                      onTap: (i) => setState(() => _currentIndex = i),
+                      onTap: (i) {
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      },
                     ),
                   ],
                 ),

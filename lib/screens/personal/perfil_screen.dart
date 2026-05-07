@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
-import 'subpantallas/invitacion_screen.dart';
-import 'subpantallas/planes_screen.dart';
-import 'subpantallas/ajustes_screen.dart';
+import '../compartido/subpantallas/invitacion_screen.dart';
+import '../compartido/subpantallas/planes_screen.dart';
+import '../compartido/subpantallas/ajustes_screen.dart';
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
@@ -20,7 +21,7 @@ class PerfilScreen extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(20, 40, 20, 90),
-                color: Color(0xFFA0BC4D),
+                color: const Color(0xFFA0BC4D),
                 child: Column(
                   children: [
                     Stack(
@@ -124,6 +125,7 @@ class PerfilScreen extends StatelessWidget {
               ),
             ),
 
+
             const SizedBox(height: 20),
 
             // Sección: Invitar familiar
@@ -143,10 +145,11 @@ class PerfilScreen extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitacionScreen())),
                   child: Container(
-                    height: 150,
+                    height: 100,
                     decoration: BoxDecoration(color: const Color(0xFFFBE3CF), borderRadius: BorderRadius.circular(12)),
-                    child: const Center(
-                      child: Image(image: AssetImage('assets/images/invitar_familiar.png'), fit: BoxFit.contain, width: 200, height: 300),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Image.asset('assets/images/invitar_familiar.png', height: 90, fit: BoxFit.contain),
                     ),
                   ),
                 ),
@@ -164,31 +167,38 @@ class PerfilScreen extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlanesScreen())),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: const Color(0xFFFBE3CF), borderRadius: BorderRadius.circular(12)),
-                    child: Row(
+                    child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(color: const Color.fromARGB(0, 232, 132, 74).withOpacity(0.0), borderRadius: BorderRadius.circular(8)),
-                          child: const Image(image: AssetImage('assets/images/planes.png'), fit: BoxFit.contain),
+                        Row(
+                          children: [
+                            const SizedBox(width: 80),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Conoce nuestros planes...', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 0, 0, 0))),
+                                    const Text('Con ellos podras desbloquear más funciones', style: TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              width: 32,
+                              height: 32,
+                              decoration: const BoxDecoration(color: Color(0xFFC5BD4F), shape: BoxShape.circle),
+                              child: const Center(child: Icon(Icons.chevron_right, color: Colors.black, size: 20)),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Conoce todos nuestros planes...', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 0, 0, 0))),
-                              Text('Con ellos podras desbloquear más funciones', style: TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: const BoxDecoration(color: Color(0xFFC5BD4F), shape: BoxShape.circle),
-                          child: const Center(child: Icon(Icons.chevron_right, color: Colors.black, size: 20)),
+                        Positioned(
+                          left: 10,
+                          bottom: 0,
+                          child: Image.asset('assets/images/planes.png', height: 60, fit: BoxFit.contain),
                         ),
                       ],
                     ),
@@ -231,7 +241,7 @@ class PerfilScreen extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                     color: Color.fromARGB(255, 0, 0, 0))),
                             Text(
-                                'Has registrado 3 meses de cuidado constante',
+                                '3 meses de cuidado constante',
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Color.fromARGB(255, 0, 0, 0))),

@@ -83,49 +83,57 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
 
                           const SizedBox(height: 50),
 
-                          // Iniciar button same as empresarial (fixed width 200)
-                          Center(
-                            child: SizedBox(
-                              width: 200,
-                              child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const PersonalMainShell()));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: buttonColor,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Expanded(
-                                      child: Center(
-                                        child: Text(
-                                          'Iniciar',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
+                          SizedBox(
+                            width: double.infinity,
+                            child: Center(
+                              child: SizedBox(
+                                width: 200,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => PersonalMainShell(key: PersonalMainShell.globalKey)),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: buttonColor,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'Iniciar',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFFBF4EA),
-                                        shape: BoxShape.circle,
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: bg,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.arrow_forward,
+                                          color: Colors.black,
+                                          size: 18,
+                                        ),
                                       ),
-                                      child: const Icon(
-                                        Icons.arrow_forward,
-                                        color: Colors.black,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

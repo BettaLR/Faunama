@@ -24,7 +24,7 @@ class _RegistroPerfilScreenState extends State<RegistroPerfilScreen> {
       backgroundColor: _bg,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 75, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
           child: Align(
             alignment: Alignment.topCenter,
             child: Column(
@@ -32,13 +32,19 @@ class _RegistroPerfilScreenState extends State<RegistroPerfilScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
               // Top image
-              Image.asset(
-                'assets/images/gecko_registro_2.png',
-                width: MediaQuery.of(context).size.width * 0.7,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 12),
-
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Image.asset(
+                      'assets/images/gecko_registro_2.png',
+                      width: MediaQuery.of(context).size.width * 0.75,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 20),
               // Title
               const Text(
                 'Registro',

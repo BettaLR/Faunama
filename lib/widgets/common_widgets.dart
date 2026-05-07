@@ -43,10 +43,10 @@ class TipCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
               child: Row(
                 children: [
-                  const SizedBox(width: 72),
+                  const SizedBox(width: 95),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,11 +55,11 @@ class TipCard extends StatelessWidget {
                             style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textDark)),
+                                color: Color.fromARGB(255, 0, 0, 0))),
                         const SizedBox(height: 2),
                         Text(subtitle,
                             style: const TextStyle(
-                                fontSize: 12, color: AppColors.textMedium)),
+                                fontSize: 12, color: Color.fromARGB(255, 0, 0, 0))),
                       ],
                     ),
                   ),
@@ -422,6 +422,155 @@ class GreenFab extends StatelessWidget {
   }
 }
 
+// ─── Calendario Anual ───
+class YearlyCalendar extends StatelessWidget {
+  final int year;
+  final DateTime selectedDay;
+  final Function(DateTime) onMonthTap;
+
+  const YearlyCalendar({
+    super.key,
+    required this.year,
+    required this.selectedDay,
+    required this.onMonthTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          '$year',
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: 200,
+          height: 2,
+          color: Colors.black.withOpacity(0.2),
+        ),
+        const SizedBox(height: 24),
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.65,
+            ),
+            itemCount: 12,
+            itemBuilder: (context, index) {
+              final monthDate = DateTime(year, index + 1);
+              return _MiniMonth(
+                date: monthDate,
+                selectedDay: selectedDay,
+                onTap: () => onMonthTap(monthDate),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MiniMonth extends StatelessWidget {
+  final DateTime date;
+  final DateTime selectedDay;
+  final VoidCallback onTap;
+
+  const _MiniMonth({
+    required this.date,
+    required this.selectedDay,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final months = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
+    
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            months[date.month - 1],
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          _CalendarGrid(date: date, selectedDay: selectedDay),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarGrid extends StatelessWidget {
+  final DateTime date;
+  final DateTime selectedDay;
+
+  const _CalendarGrid({required this.date, required this.selectedDay});
+
+  @override
+  Widget build(BuildContext context) {
+    final firstDay = DateTime(date.year, date.month, 1);
+    final lastDay = DateTime(date.year, date.month + 1, 0);
+    final daysInMonth = lastDay.day;
+    final weekdayOfFirst = firstDay.weekday;
+
+    final offset = weekdayOfFirst - 1;
+
+    return Column(
+      children: List.generate(6, (row) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(7, (col) {
+            final dayNum = row * 7 + col - offset + 1;
+            final isValidDay = dayNum > 0 && dayNum <= daysInMonth;
+            
+            bool isSelected = isValidDay && 
+                             selectedDay.year == date.year && 
+                             selectedDay.month == date.month && 
+                             selectedDay.day == dayNum;
+
+            return Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                decoration: isSelected ? BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ) : null,
+                child: Text(
+                  isValidDay ? '$dayNum' : '',
+                  style: TextStyle(
+                    fontSize: 8,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                    color: Colors.black.withOpacity(isValidDay ? 1.0 : 0.0),
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      }),
+    );
+  }
+}
+
 // ─── Sección header con título y acción ───
 class SectionHeader extends StatelessWidget {
   final String title;
@@ -442,5 +591,197 @@ class SectionHeader extends StatelessWidget {
         if (trailing != null) trailing!,
       ],
     );
+  }
+}
+
+class PatientCard extends StatelessWidget {
+  final Patient patient;
+  final VoidCallback? onEdit;
+
+  const PatientCard({
+    super.key,
+    required this.patient,
+    this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFBE3CF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border, width: 0.5),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left: Image with color bar
+          Column(
+            children: [
+              Container(
+                width: 140,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: _getConditionColor(patient.condition),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                ),
+              ),
+              Container(
+                width: 140,
+                height: 180,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFBF4EA),
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                  image: patient.imageUrl != null
+                      ? DecorationImage(
+                          image: patient.imageUrl!.toLowerCase().startsWith('http')
+                              ? NetworkImage(patient.imageUrl!)
+                              : FileImage(File(patient.imageUrl!)) as ImageProvider,
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: patient.imageUrl == null
+                    ? const Center(
+                        child: Icon(Icons.image,
+                            size: 48, color: Color(0xFFFBE3CF)),
+                      )
+                    : null,
+              ),
+            ],
+          ),
+          const SizedBox(width: 16),
+          // Right: Information
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            patient.ownerName,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          Text(
+                            'Nombre: ${patient.petName}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          Text(
+                            patient.gender == 'male' ? 'Macho' : patient.gender == 'female' ? 'Hembra' : patient.gender == 'mixed' ? 'Mixto' : 'Desconocido',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: onEdit,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFC5BD4F),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.edit, size: 18, color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Síntomas',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                ...patient.symptoms.split('\n').where((s) => s.trim().isNotEmpty).map((s) => Padding(
+                      padding: const EdgeInsets.only(bottom: 2),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('• ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          Expanded(
+                            child: Text(
+                              s,
+                              style: const TextStyle(fontSize: 12, color: AppColors.textDark),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                const SizedBox(height: 12),
+                const Text(
+                  'Próxima Cita',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                Text(
+                  patient.nextAppointment != null 
+                    ? '${_weekdayNameLong(patient.nextAppointment!)} ${patient.nextAppointment!.day} de ${_monthNameLong(patient.nextAppointment!.month)}'
+                    : 'Sin cita programada',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getConditionColor(String condition) {
+    switch (condition) {
+      case 'mild':
+        return const Color(0xFFA0BC4D);
+      case 'severe':
+        return const Color(0xFFC53D3D);
+      case 'chronic':
+        return const Color(0xFFE1677D);
+      case 'acute':
+        return const Color(0xFFFF994D);
+      default:
+        return const Color(0xFFA0BC4D);
+    }
+  }
+
+  String _weekdayNameLong(DateTime d) {
+    const days = [
+      'Lunes', 'Martes', 'Miércoles', 'Jueves',
+      'Viernes', 'Sábado', 'Domingo'
+    ];
+    return days[d.weekday - 1];
+  }
+
+  String _monthNameLong(int m) {
+    const months = [
+      '', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+    ];
+    return months[m];
   }
 }
