@@ -6,11 +6,17 @@ import 'screens/welcome_screen.dart';
 import 'screens/personal/main_shell.dart';
 import 'screens/profesional/main_shell.dart';
 import 'data/mock_data.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   // Catch uncaught async errors
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     // Global Flutter error handler
     FlutterError.onError = (FlutterErrorDetails details) {

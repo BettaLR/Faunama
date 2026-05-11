@@ -3,47 +3,34 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'personal/main_shell.dart';
+import 'profesional/main_shell.dart';
 
-class PersonalSeleccionScreen extends StatefulWidget {
-  const PersonalSeleccionScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<PersonalSeleccionScreen> createState() => _PersonalSeleccionScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
-  final _userController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmController = TextEditingController();
-  
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _userController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmController.dispose();
     super.dispose();
   }
 
-  Future<void> _registerUser() async {
-    final user = _userController.text.trim();
+  Future<void> _loginUser() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-    final confirm = _confirmController.text.trim();
 
-    if (user.isEmpty || email.isEmpty || password.isEmpty || confirm.isEmpty) {
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor llena todos los campos')),
-      );
-      return;
-    }
-
-    if (password != confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las contraseñas no coinciden')),
+        const SnackBar(content: Text('Por favor ingresa tu correo y contraseña')),
       );
       return;
     }
@@ -53,37 +40,50 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
     });
 
     try {
-      // 1. Create user in Firebase Authentication
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // 2. Save additional user data in Cloud Firestore
+      // Fetch user data from Firestore
       if (userCredential.user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-          'username': user,
-          'email': email,
-          'accountType': 'Personal',
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      // 3. Navigate to main shell
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => PersonalMainShell(key: PersonalMainShell.globalKey)),
-        );
+        final doc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
+        
+        if (mounted) {
+          if (doc.exists) {
+            final data = doc.data();
+            final accountType = data?['accountType'] as String?;
+            
+            // Redirect based on accountType
+            if (accountType == 'Empresarial') {
+               Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfesionalMainShell()),
+                (route) => false,
+              );
+            } else {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => PersonalMainShell(key: PersonalMainShell.globalKey)),
+                (route) => false,
+              );
+            }
+          } else {
+            // User doc doesn't exist, default to personal
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => PersonalMainShell(key: PersonalMainShell.globalKey)),
+              (route) => false,
+            );
+          }
+        }
       }
     } on FirebaseAuthException catch (e) {
-      String errorMessage = 'Ocurrió un error al registrar';
-      if (e.code == 'weak-password') {
-        errorMessage = 'La contraseña es demasiado débil.';
-      } else if (e.code == 'email-already-in-use') {
-        errorMessage = 'Ya existe una cuenta con este correo electrónico.';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'El correo electrónico no es válido.';
+      String errorMessage = 'Error al iniciar sesión';
+      if (e.code == 'user-not-found' || e.code == 'invalid-email') {
+        errorMessage = 'No se encontró ningún usuario con ese correo.';
+      } else if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        errorMessage = 'Contraseña o correo incorrecto.';
       }
       
       if (mounted) {
@@ -126,9 +126,18 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
                   const SizedBox(height: 8),
                   SizedBox(
                     width: 280,
-                    child: const Text('Cuenta', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black), textAlign: TextAlign.left),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Icon(Icons.arrow_back, color: Colors.black),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text('Iniciar Sesión', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 30),
 
                   // Compact form container
                   Center(
@@ -137,12 +146,6 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          TextField(
-                            controller: _userController,
-                            decoration: const InputDecoration(labelText: 'Usuario', labelStyle: TextStyle(color: Colors.black)),
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          const SizedBox(height: 12),
                           TextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -156,13 +159,6 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
                             decoration: const InputDecoration(labelText: 'Contraseña', labelStyle: TextStyle(color: Colors.black)),
                             style: const TextStyle(color: Colors.black),
                           ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _confirmController,
-                            obscureText: true,
-                            decoration: const InputDecoration(labelText: 'Confirmar contraseña', labelStyle: TextStyle(color: Colors.black)),
-                            style: const TextStyle(color: Colors.black),
-                          ),
 
                           const SizedBox(height: 50),
 
@@ -172,7 +168,7 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
                               child: SizedBox(
                                 width: 200,
                                 child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _registerUser,
+                                  onPressed: _isLoading ? null : _loginUser,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: buttonColor,
                                     foregroundColor: Colors.white,
@@ -193,7 +189,7 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
                                       const Expanded(
                                         child: Center(
                                           child: Text(
-                                            'Registrar',
+                                            'Ingresar',
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -209,7 +205,7 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
                                           color: bg,
                                           shape: BoxShape.circle,
                                         ),
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.arrow_forward,
                                           color: Colors.black,
                                           size: 18,
@@ -234,4 +230,3 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
     );
   }
 }
-

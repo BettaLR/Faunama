@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import 'registro_perfil_screen.dart';
-import 'personal/main_shell.dart';
+import 'login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -149,7 +149,7 @@ class WelcomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => PersonalMainShell(key: PersonalMainShell.globalKey)),
+                                builder: (_) => const LoginScreen()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
