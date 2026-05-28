@@ -77,7 +77,7 @@ class _PersonalSeleccionScreenState extends State<PersonalSeleccionScreen> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      String errorMessage = 'Ocurrió un error al registrar';
+      String errorMessage = 'Error: ${e.code} - ${e.message}';
       if (e.code == 'weak-password') {
         errorMessage = 'La contraseña es demasiado débil.';
       } else if (e.code == 'email-already-in-use') {
