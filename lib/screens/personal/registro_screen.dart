@@ -62,12 +62,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
     final idx = _selectedGeckoIndex;
     MockData.geckos.removeAt(idx);
     await MockData.save();
-    if (MockData.geckos.isEmpty) {
-      if (mounted) Navigator.pop(context);
-      return;
-    }
+    
     setState(() {
-      if (_selectedGeckoIndex >= MockData.geckos.length) {
+      if (MockData.geckos.isEmpty) {
+        _selectedGeckoIndex = 0;
+      } else if (_selectedGeckoIndex >= MockData.geckos.length) {
         _selectedGeckoIndex = MockData.geckos.length - 1;
       }
     });
