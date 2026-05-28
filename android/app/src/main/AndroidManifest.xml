@@ -5,9 +5,9 @@
     <!-- Android 13+ permission for reading images -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <application
-        android:label="gecko_app"
+        android:label="Faunama"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"

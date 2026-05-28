@@ -536,7 +536,8 @@ class _ConditionChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? color : AppColors.cream,
           borderRadius: BorderRadius.circular(10),
@@ -545,7 +546,7 @@ class _ConditionChip extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: selected ? FontWeight.bold : FontWeight.normal,
             color: selected ? Colors.black : Colors.black87,
           ),
@@ -574,7 +575,8 @@ class _FilterChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? color : color.withOpacity(0.4),
           borderRadius: BorderRadius.circular(10),
@@ -588,7 +590,7 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             color: selected ? Colors.black : Colors.black54,
             fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-            fontSize: 13,
+            fontSize: 11,
           ),
         ),
       ),

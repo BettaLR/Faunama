@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../data/mock_data.dart';
 import '../../models/gecko.dart';
+import '../../widgets/add_gecko_sheet.dart';
 
 class RegistroScreen extends StatefulWidget {
   final int? initialIndex;
@@ -72,6 +73,15 @@ class _RegistroScreenState extends State<RegistroScreen> {
     });
   }
 
+  void _showAddGeckoSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const AddGeckoSheet(),
+    ).then((_) => setState(() {}));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,12 +130,15 @@ class _RegistroScreenState extends State<RegistroScreen> {
                                 color: const Color(0xFFFBF4EA),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                MockData.geckos.isEmpty ? 'Añadir mascota' : _currentGecko!.name,
-                                style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black),
+                              child: GestureDetector(
+                                onTap: MockData.geckos.isEmpty ? () => _showAddGeckoSheet(context) : null,
+                                child: Text(
+                                  MockData.geckos.isEmpty ? 'Añadir mascota' : _currentGecko!.name,
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black),
+                                ),
                               ),
                             ),
                           ),
@@ -154,9 +167,28 @@ class _RegistroScreenState extends State<RegistroScreen> {
             Expanded(
               child: MockData.geckos.isEmpty
                   ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Text('No hay mascotas registradas. Añade una desde Inicio.', style: const TextStyle(fontSize: 16)),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: Text(
+                              'No hay mascotas registradas.',
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFA0BC4D),
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed: () => _showAddGeckoSheet(context),
+                            child: const Text('Añadir mascota', style: TextStyle(fontWeight: FontWeight.w600)),
+                          ),
+                        ],
                       ),
                     )
                   : ListView(

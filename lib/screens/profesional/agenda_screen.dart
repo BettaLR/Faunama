@@ -3,6 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../theme/app_theme.dart';
 import '../../data/mock_data.dart';
 import '../../models/gecko.dart';
+import '../../widgets/common_widgets.dart';
 
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});
@@ -191,6 +192,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
                     } catch (e, st) {
                       // ignore: avoid_print
                       print('Error saving event (agenda prof): $e');
+                      // ignore: avoid_print
+                      print(st);
                     }
                     Navigator.pop(ctx);
                     setState(() {});
@@ -212,6 +215,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isYearly = _calendarFormat == CalendarFormat.week;
+
     return Scaffold(
       backgroundColor: AppColors.cream,
       body: CustomScrollView(
@@ -222,6 +227,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                 clipper: BottomArcClipper(),
                 child: Container(
                   width: double.infinity,
+                  height: isYearly ? 650 : null,
                   color: const Color(0xFFA0BC4D),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -238,49 +244,68 @@ class _AgendaScreenState extends State<AgendaScreen> {
                           },
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
-                        child: TableCalendar(
-                          firstDay: DateTime.utc(2024, 1, 1),
-                          lastDay: DateTime.utc(2027, 12, 31),
-                          focusedDay: _focusedDay,
-                          calendarFormat: _calendarFormat,
-                          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                          onDaySelected: (selectedDay, focusedDay) {
-                            setState(() {
-                              _selectedDay = selectedDay;
-                              _focusedDay = focusedDay;
-                            });
-                          },
-                          eventLoader: (day) => MockData.events.where((e) => e.date.year == day.year && e.date.month == day.month && e.date.day == day.day).toList(),
-                          calendarStyle: CalendarStyle(
-                            todayDecoration: BoxDecoration(color: const Color(0xFFFBF4EA), borderRadius: BorderRadius.circular(8)),
-                            todayTextStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.w600),
-                            selectedDecoration: BoxDecoration(color: const Color(0xFFFBF4EA), borderRadius: BorderRadius.circular(8)),
-                            selectedTextStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.w700),
-                            markerDecoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
-                            markerSize: 5,
-                            markersMaxCount: 1,
-                            defaultTextStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 13),
-                            weekendTextStyle: const TextStyle(color: Color.fromARGB(179, 0, 0, 0), fontSize: 13),
-                            outsideTextStyle: const TextStyle(color: Color.fromARGB(97, 0, 0, 0), fontSize: 13),
-                            disabledTextStyle: const TextStyle(color: Color.fromARGB(60, 0, 0, 0), fontSize: 13),
-                            cellMargin: const EdgeInsets.all(4),
+                      const SizedBox(height: 20),
+                      if (isYearly)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 40),
+                            child: YearlyCalendar(
+                              year: _focusedDay.year,
+                              selectedDay: _selectedDay ?? DateTime.now(),
+                              onMonthTap: (date) {
+                                setState(() {
+                                  _calendarFormat = CalendarFormat.month;
+                                  _focusedDay = date;
+                                  _selectedDay = date;
+                                });
+                              },
+                            ),
                           ),
-                          headerStyle: const HeaderStyle(
-                            formatButtonVisible: false,
-                            titleCentered: true,
-                            titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 0, 0, 0)),
-                            leftChevronIcon: Icon(Icons.chevron_left, color: Color.fromARGB(255, 0, 0, 0), size: 24),
-                            rightChevronIcon: Icon(Icons.chevron_right, color: Color.fromARGB(255, 0, 0, 0), size: 24),
-                            headerPadding: EdgeInsets.symmetric(vertical: 10),
-                          ),
-                          daysOfWeekStyle: const DaysOfWeekStyle(
-                            weekdayStyle: TextStyle(fontSize: 11, color: Color.fromARGB(179, 0, 0, 0), fontWeight: FontWeight.w500),
-                            weekendStyle: TextStyle(fontSize: 11, color: Color.fromARGB(179, 0, 0, 0), fontWeight: FontWeight.w500),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
+                          child: TableCalendar(
+                            firstDay: DateTime.utc(2024, 1, 1),
+                            lastDay: DateTime.utc(2027, 12, 31),
+                            focusedDay: _focusedDay,
+                            calendarFormat: CalendarFormat.month,
+                            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                            onDaySelected: (selectedDay, focusedDay) {
+                              setState(() {
+                                _selectedDay = selectedDay;
+                                _focusedDay = focusedDay;
+                              });
+                            },
+                            eventLoader: (day) => MockData.events.where((e) => e.date.year == day.year && e.date.month == day.month && e.date.day == day.day).toList(),
+                            calendarStyle: CalendarStyle(
+                              todayDecoration: BoxDecoration(color: const Color(0xFFFBF4EA), borderRadius: BorderRadius.circular(8)),
+                              todayTextStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.w600),
+                              selectedDecoration: BoxDecoration(color: const Color(0xFFFBF4EA), borderRadius: BorderRadius.circular(8)),
+                              selectedTextStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.w700),
+                              markerDecoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                              markerSize: 5,
+                              markersMaxCount: 1,
+                              defaultTextStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 13),
+                              weekendTextStyle: const TextStyle(color: Color.fromARGB(179, 0, 0, 0), fontSize: 13),
+                              outsideTextStyle: const TextStyle(color: Color.fromARGB(97, 0, 0, 0), fontSize: 13),
+                              disabledTextStyle: const TextStyle(color: Color.fromARGB(60, 0, 0, 0), fontSize: 13),
+                              cellMargin: const EdgeInsets.all(4),
+                            ),
+                            headerStyle: const HeaderStyle(
+                              formatButtonVisible: false,
+                              titleCentered: true,
+                              titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 0, 0, 0)),
+                              leftChevronIcon: Icon(Icons.chevron_left, color: Color.fromARGB(255, 0, 0, 0), size: 24),
+                              rightChevronIcon: Icon(Icons.chevron_right, color: Color.fromARGB(255, 0, 0, 0), size: 24),
+                              headerPadding: EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            daysOfWeekStyle: const DaysOfWeekStyle(
+                              weekdayStyle: TextStyle(fontSize: 11, color: Color.fromARGB(179, 0, 0, 0), fontWeight: FontWeight.w500),
+                              weekendStyle: TextStyle(fontSize: 11, color: Color.fromARGB(179, 0, 0, 0), fontWeight: FontWeight.w500),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),

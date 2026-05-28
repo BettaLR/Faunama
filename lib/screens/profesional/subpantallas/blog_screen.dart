@@ -163,82 +163,96 @@ class _BlogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFBE3CF),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 0.5),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Imagen a la izquierda
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFBF4EA),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(Icons.image,
-                  size: 36, color: Color(0xFFFBE3CF)),
-            ),
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Proximamente...'),
+            duration: Duration(seconds: 2),
+            backgroundColor: AppColors.green,
           ),
-          const SizedBox(width: 12),
-          // Contenido a la derecha
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Subtítulo
-                const Text('Cómo cuidar a tu gecko',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textDark)),
-                const SizedBox(height: 4),
-                // Texto
-                const Text(
-                    'Aprende los mejores consejos para mantener a tu mascota saludable y feliz...',
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Color.fromARGB(255, 0, 0, 0)),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 8),
-                // Ver más y botón ir
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: onVerMas,
-                      child: const Text('Ver más',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFFFF994D))),
-                    ),
-                    GestureDetector(
-                      onTap: onIr,
-                      child: Container(
-                        width: 30,
-                        height: 20,
-                        decoration: BoxDecoration(
-                            color: const Color(0xFFFF994D),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: const Icon(Icons.chevron_right,
-                            size: 20, color: Color.fromARGB(255, 0, 0, 0)),
-                      ),
-                    ),
-                  ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFBE3CF),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border, width: 0.5),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Imagen a la izquierda
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFBF4EA),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  'assets/images/img_tienda.JPG',
+                  fit: BoxFit.cover,
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            // Contenido a la derecha
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Subtítulo
+                  const Text('Cómo cuidar a tu gecko',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark)),
+                  const SizedBox(height: 4),
+                  // Texto
+                  const Text(
+                      'Aprende los mejores consejos para mantener a tu mascota saludable y feliz...',
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Color.fromARGB(255, 0, 0, 0)),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 8),
+                  // Ver más y botón ir
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: onVerMas,
+                        child: const Text('Ver más',
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFFFF994D))),
+                      ),
+                      GestureDetector(
+                        onTap: onIr,
+                        child: Container(
+                          width: 30,
+                          height: 20,
+                          decoration: BoxDecoration(
+                              color: const Color(0xFFFF994D),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: const Icon(Icons.chevron_right,
+                              size: 20, color: Color.fromARGB(255, 0, 0, 0)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
